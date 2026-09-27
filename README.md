@@ -767,5 +767,5 @@ Tema tersebut diterjemahkan ke dalam solusi nyata: memberdayakan ekosistem usaha
 
 ## Lisensi & Kontributor
 
-- **Pengembang**: Ahmad Khairul Fatih & Tim Pengembang KedaiKas
+- **Pengembang**: Ahmad Khairul Fatih, Daffa Berlliano, Darin Hilmi Azzahra (Tim Pengembang KedaiKas)
 - **Lisensi**: Proyek ini bersifat terbuka untuk tujuan pembelajaran, portofolio rekayasa perangkat lunak, dan pengembangan ekosistem digital UMKM.
