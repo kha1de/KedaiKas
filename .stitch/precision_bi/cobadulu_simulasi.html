@@ -1,0 +1,581 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><title>KedaiKas - Platform Intelijen Bisnis Digital UMKM</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-surface": "#191c20", "error-container": "#ffdad6", "primary-fixed": "#d3e4fe", "on-background": "#191c20", "on-primary": "#ffffff", "error": "#ba1a1a", "on-tertiary-fixed": "#390c00", "background": "#f8f9ff", "on-tertiary-container": "#e78261", "on-tertiary": "#ffffff", "surface-bright": "#f8f9ff", "secondary": "#515f74", "tertiary": "#400e00", "tertiary-fixed-dim": "#ffb59d", "inverse-surface": "#2e3135", "on-error-container": "#93000a", "inverse-primary": "#b7c8e1", "surface-dim": "#d8dadf", "primary-fixed-dim": "#b7c8e1", "secondary-container": "#d4e4fc", "on-secondary": "#ffffff", "surface-container-low": "#f2f3f9", "primary-container": "#26364a", "surface-tint": "#506075", "on-secondary-fixed-variant": "#39485b", "surface-container": "#eceef3", "surface-container-high": "#e6e8ed", "on-primary-fixed-variant": "#38485d", "secondary-fixed-dim": "#b8c8df", "outline": "#74777d", "on-secondary-container": "#57657a", "surface-variant": "#e1e2e8", "surface": "#f8f9ff", "primary": "#102134", "inverse-on-surface": "#eff0f6", "tertiary-container": "#621e04", "surface-container-lowest": "#ffffff", "secondary-fixed": "#d4e4fc", "on-error": "#ffffff", "outline-variant": "#c4c6cd", "on-secondary-fixed": "#0d1c2e", "tertiary-fixed": "#ffdbd0", "on-tertiary-fixed-variant": "#7a2f14", "on-primary-fixed": "#0b1c2f", "surface-container-highest": "#e1e2e8", "on-surface-variant": "#44474c", "on-primary-container": "#8e9fb7" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-mobile": "0.75rem", "space-xs": "0.25rem", "space-xl": "2rem", "space-md": "1rem", "margin": "2rem", "margin-mobile": "1rem", "gutter": "1.25rem", "space-sm": "0.5rem", "space-lg": "1.5rem" }, "fontFamily": { "display-kpi-mobile": ["Plus Jakarta Sans"], "metric-tabular-sm": ["JetBrains Mono"], "headline-md": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "display-kpi": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-caps": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "metric-tabular": ["JetBrains Mono"], "label-ui": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"] }, "fontSize": { "display-kpi-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "metric-tabular-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "display-kpi": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "metric-tabular": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "label-ui": ["13px", { "lineHeight": "18px", "fontWeight": "500" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "headline-xl-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between overflow-y-auto"><div class="flex flex-col"><div class="h-20 px-space-lg flex items-center gap-space-sm"><img alt="KedaiKas Brand Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WoR8suAMBQoo-66O1V_ljSguiSSSmNL1ekOoPWA9nWtEhTJm7nbQmdZVYYpIWbkY8RVGGdMStygoR7qUlkp-C4OstJzhBc3iTXaLT5WhHn1XOVlSG203gl-sXpF5Bf6sCebl1K5mAnUD4mg4syB8gB0gpGSMfJEpeKTZ0XVVEkB3AutMGXD9HszMuig_JhoeP3tmpAfvt2SB4scLTg8WcvjAHqwQE80FQvAaACQlU_Pu0VEVMQmneUlQ"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-primary font-bold tracking-tight">KedaiKas</span><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Intelijen Bisnis</span></div></div><div class="px-space-md mb-space-sm"><div class="bg-surface-container-low rounded-lg p-space-sm flex items-center justify-between shadow-[0_1px_3px_rgba(38,54,74,0.04)]"><div class="flex items-center gap-space-xs overflow-hidden"><span class="material-symbols-outlined text-secondary text-lg">store</span><div class="flex flex-col truncate"><span class="font-label-caps text-label-caps text-on-surface-variant">OUTLET AKTIF</span><span class="font-label-ui text-label-ui text-on-surface font-semibold truncate">Kopi &amp; Roti Nusantara</span></div></div><button class="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Ganti Outlet" type="button"><span class="material-symbols-outlined text-base">unfold_more</span></button></div></div><nav class="px-space-md py-space-xs space-y-1 flex flex-col" data-active-classes="bg-primary-container text-on-primary font-semibold rounded-lg shadow-sm"><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="dashboard" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">dashboard</span><span class="font-label-ui text-label-ui">Dashboard</span></div></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="transaksi" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">receipt_long</span><span class="font-label-ui text-label-ui">Transaksi</span></div></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="produk" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">inventory_2</span><span class="font-label-ui text-label-ui">Produk</span></div></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="keuangan" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">account_balance_wallet</span><span class="font-label-ui text-label-ui">Keuangan</span></div></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="analisis-insight" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">insights</span><span class="font-label-ui text-label-ui">Analisis &amp; Insight</span></div><span class="font-metric-tabular-sm text-metric-tabular-sm px-1.5 py-0.5 rounded bg-tertiary-fixed text-on-tertiary-fixed font-semibold">3 Baru</span></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="target-usaha" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">track_changes</span><span class="font-label-ui text-label-ui">Target Usaha</span></div></a><a aria-current="page" class="flex items-center justify-between px-space-md py-2.5 transition-all bg-primary-container text-on-primary font-semibold rounded-lg shadow-sm" data-path="cobadulu" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">science</span><span class="font-label-ui text-label-ui">CobaDulu</span></div><span class="font-metric-tabular-sm text-metric-tabular-sm px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-fixed font-semibold">Simulasi</span></a><a class="flex items-center justify-between px-space-md py-2.5 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="laporan" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">summarize</span><span class="font-label-ui text-label-ui">Laporan</span></div></a></nav></div><div class="px-space-md pb-space-lg pt-space-sm space-y-space-sm"><nav class="space-y-1 flex flex-col" data-active-classes="bg-primary-container text-on-primary font-semibold rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="pengaturan" href="#"><span class="material-symbols-outlined text-xl">settings</span><span class="font-label-ui text-label-ui">Pengaturan</span></a><a class="flex items-center gap-space-sm px-space-md py-2 rounded-lg text-secondary hover:bg-surface-container-low hover:text-primary transition-all" data-path="bantuan-edukasi" href="#"><span class="material-symbols-outlined text-xl">school</span><span class="font-label-ui text-label-ui">Bantuan &amp; Edukasi</span></a></nav><div class="bg-surface-container-low rounded-lg p-space-md flex flex-col gap-1 shadow-[0_1px_3px_rgba(38,54,74,0.04)]"><div class="flex items-center justify-between"><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Status Kuota</span><span class="h-2 w-2 rounded-full bg-primary"></span></div><span class="font-label-ui text-label-ui text-primary font-bold">Aktif (Pro UKM)</span><span class="font-body-sm text-body-sm text-on-surface-variant">Pembaruan otomatis 1 Nov</span></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-20 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-space-xl flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg flex-1 max-w-2xl"><div class="relative w-full max-w-md"><span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-lg">search</span><input class="w-full h-10 pl-10 pr-4 rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary-container shadow-[0_1px_3px_rgba(38,54,74,0.04)]" placeholder="Cari data transaksi, produk, atau insight..." type="text"></div><div class="flex items-center bg-surface-container-lowest rounded-lg px-space-md h-10 shadow-[0_1px_3px_rgba(38,54,74,0.04)] text-secondary gap-space-xs cursor-pointer hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">calendar_today</span><span class="font-label-ui text-label-ui text-on-surface font-medium">Bulan Ini: 1 - 24 Okt 2024</span><span class="material-symbols-outlined text-sm">expand_more</span></div></div><div class="flex items-center gap-space-md"><button class="h-10 px-space-lg rounded-lg bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-ui text-label-ui font-semibold flex items-center gap-1.5 shadow-[0_1px_3px_rgba(38,54,74,0.04)] transition-colors" type="button"><span class="material-symbols-outlined text-lg">add</span><span class="">Transaksi</span></button><button class="relative h-10 w-10 rounded-lg bg-surface-container-lowest shadow-[0_1px_3px_rgba(38,54,74,0.04)] flex items-center justify-center text-secondary hover:text-primary transition-colors" title="Notifikasi" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-error ring-2 ring-surface-container-lowest"></span></button><div class="flex items-center gap-space-sm pl-space-sm cursor-pointer"><div class="w-8 h-8 rounded-full bg-primary-container text-on-primary font-bold text-xs flex items-center justify-center select-none shadow-sm">BP</div><div class="hidden xl:flex flex-col text-left"><span class="font-label-ui text-label-ui text-on-surface font-bold leading-tight">Budi Pratama</span><span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Owner &amp; Pengelola</span></div></div></div></header><main class="w-full pt-20 bg-surface flex-1 px-space-xl pb-space-xl max-w-7xl mx-auto"><div class="flex flex-col w-full">
+<div class="flex flex-col gap-space-sm pb-space-lg">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="px-2 py-0.5 rounded bg-secondary-container text-on-secondary-fixed font-metric-tabular-sm text-metric-tabular-sm font-semibold uppercase tracking-wider">Laboratorium Finansial</span>
+<span class="text-on-surface-variant font-label-caps text-label-caps">MODUL v2.4</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">CobaDulu: Ruang Simulasi &amp; Proyeksi Keputusan</h1>
+<p class="font-body-md text-body-md text-secondary mt-1 max-w-3xl">Uji dampak perubahan harga jual, biaya modal, dan target penjualan sebelum benar-benar menerapkannya pada operasional toko.</p>
+</div>
+<div class="flex items-center gap-space-sm self-start md:self-auto">
+<button class="h-10 px-space-md rounded-lg bg-surface-container-low hover:bg-surface-container text-primary font-label-ui text-label-ui font-semibold shadow-sm transition-all flex items-center gap-2" id="scenarioCompareBtn" type="button">
+<span class="material-symbols-outlined text-lg text-secondary">history</span>
+<span class="">Riwayat Skenario (3)</span>
+</button>
+<button class="h-10 px-space-md rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-ui text-label-ui font-semibold shadow-sm transition-all flex items-center gap-1.5" id="saveScenarioTopBtn" type="button">
+<span class="material-symbols-outlined text-lg">bookmark</span>
+<span class="">Simpan Draft</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md flex items-start gap-space-sm shadow-sm mt-space-xs">
+<span class="material-symbols-outlined text-secondary text-xl mt-0.5 shrink-0">info</span>
+<div class="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2">
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+<strong class="font-semibold text-on-surface">Catatan Metodologi:</strong> Semua angka pada simulasi ini bersifat estimasi &amp; proyeksi matematis berdasarkan riwayat data usaha Anda, bukan jaminan hasil mutlak.
+        </p>
+<span class="font-metric-tabular-sm text-metric-tabular-sm text-secondary whitespace-nowrap">Baseline: Okt 2024 (Aktual)</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<div class="lg:col-span-5 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-lg">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-2">
+<span class="h-7 w-7 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">tune</span>
+</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary font-bold leading-tight">Parameter Input</h2>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Variabel Dinamis</span>
+</div>
+</div>
+<button class="text-secondary hover:text-error transition-colors flex items-center gap-1 font-label-caps text-label-caps font-semibold" id="resetParamsBtn" type="button">
+<span class="material-symbols-outlined text-sm">restart_alt</span>
+<span class="">RESET</span>
+</button>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Pilih Skenario Cepat</label>
+<div class="relative">
+<select class="w-full h-11 pl-3.5 pr-10 rounded-lg bg-surface-container-low text-on-surface font-label-ui text-label-ui appearance-none focus:outline-none focus:bg-surface-container-lowest shadow-sm transition-all cursor-pointer" id="presetSelector">
+<option value="custom">-- Skenario Kustom (Kombinasi Mandiri) --</option>
+<option selected="" value="preset_price">Naikkan Harga Menu Utama +8%</option>
+<option value="preset_cogs">Efisiensi HPP Bahan Baku -5%</option>
+<option value="preset_staff">Target Tambah Karyawan Baru (Ekspansi)</option>
+<option value="preset_conservative">Konservatif: Inflasi Bahan Baku +10%</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-xl">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-lg pt-space-xs">
+<div class="flex flex-col gap-2.5 bg-surface-container-low/50 p-space-md rounded-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-base">sell</span>
+<span class="font-label-ui text-label-ui font-bold text-primary">1. Rata-Rata Harga Jual / Unit</span>
+</div>
+<span class="font-metric-tabular text-metric-tabular px-2 py-0.5 rounded bg-primary text-on-primary font-semibold" id="priceBadge">Rp 35.000</span>
+</div>
+<div class="flex justify-between font-metric-tabular-sm text-metric-tabular-sm text-secondary">
+<span class="">Aktual: Rp 32.000</span>
+<span class="text-tertiary-container font-semibold" id="priceDelta">+9.4%</span>
+</div>
+<input class="w-full accent-tertiary-container cursor-pointer h-2 bg-surface-container rounded-lg" id="priceSlider" max="42000" min="28000" step="500" type="range" value="35000">
+<div class="flex items-center justify-between mt-1 pt-1.5 border-t border-transparent">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input checked="" class="rounded w-4 h-4 text-tertiary-container accent-tertiary-container cursor-pointer" id="elasticityToggle" type="checkbox">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Asumsi elastisitas volume akibat harga:</span>
+</label>
+<span class="font-metric-tabular-sm text-metric-tabular-sm text-error font-semibold" id="elasticityVal">-4%</span>
+</div>
+</div>
+<div class="flex flex-col gap-2.5 bg-surface-container-low/50 p-space-md rounded-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-base">shopping_cart</span>
+<span class="font-label-ui text-label-ui font-bold text-primary">2. Target Volume Penjualan / Bulan</span>
+</div>
+<span class="font-metric-tabular text-metric-tabular px-2 py-0.5 rounded bg-primary text-on-primary font-semibold" id="volumeBadge">1.485 trx</span>
+</div>
+<div class="flex justify-between font-metric-tabular-sm text-metric-tabular-sm text-secondary">
+<span class="">Aktual: 1.428 transaksi</span>
+<span class="text-on-tertiary-container font-semibold" id="volumeDelta">+4.0%</span>
+</div>
+<input class="w-full accent-primary-container cursor-pointer h-2 bg-surface-container rounded-lg" id="volumeSlider" max="2500" min="1000" step="10" type="range" value="1550">
+<div class="flex items-center justify-between text-secondary font-label-caps text-label-caps">
+<span class="">Kapasitas Minimum: 1.000</span>
+<span class="">Kapasitas Bar Maks: 2.500 cup</span>
+</div>
+</div>
+<div class="flex flex-col gap-2.5 bg-surface-container-low/50 p-space-md rounded-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-base">soup_kitchen</span>
+<span class="font-label-ui text-label-ui font-bold text-primary">3. Biaya Bahan Baku (HPP / Unit)</span>
+</div>
+<span class="font-metric-tabular text-metric-tabular px-2 py-0.5 rounded bg-primary text-on-primary font-semibold" id="cogsBadge">Rp 13.800</span>
+</div>
+<div class="flex justify-between font-metric-tabular-sm text-metric-tabular-sm text-secondary">
+<span class="">Aktual: Rp 14.500</span>
+<span class="text-on-secondary-container font-semibold" id="cogsDelta">-4.8%</span>
+</div>
+<input class="w-full accent-secondary cursor-pointer h-2 bg-surface-container rounded-lg" id="cogsSlider" max="18000" min="11000" step="100" type="range" value="13800">
+<div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-sm">handshake</span>
+<span class="">Kompensasi pembelian biji kopi curah &amp; susu kartonan</span>
+</div>
+</div>
+<div class="flex flex-col gap-2.5 bg-surface-container-low/50 p-space-md rounded-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-base">corporate_fare</span>
+<span class="font-label-ui text-label-ui font-bold text-primary">4. Biaya Tetap Operasional / Bulan</span>
+</div>
+<span class="font-metric-tabular text-metric-tabular px-2 py-0.5 rounded bg-primary text-on-primary font-semibold" id="fixedCostBadge">Rp 19.500.000</span>
+</div>
+<div class="flex justify-between font-metric-tabular-sm text-metric-tabular-sm text-secondary">
+<span class="">Aktual: Rp 17.000.000</span>
+<span class="text-error font-semibold" id="fixedCostDelta">+Rp 2.500.000 (+14.7%)</span>
+</div>
+<input class="w-full accent-secondary cursor-pointer h-2 bg-surface-container rounded-lg" id="fixedCostSlider" max="25000000" min="15000000" step="500000" type="range" value="19500000">
+<div class="p-2 rounded bg-surface-container text-on-surface font-body-sm text-body-sm flex items-center justify-between">
+<span class="truncate">Alokasi: Sewa, Listrik, Wifi + 1 Barista Part-Time</span>
+<span class="font-metric-tabular-sm text-metric-tabular-sm text-secondary font-semibold shrink-0">4 Shift</span>
+</div>
+</div>
+</div>
+<div class="pt-space-xs flex flex-col gap-2.5">
+<button class="w-full h-11 rounded-lg bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-ui text-label-ui font-bold shadow-md transition-all flex items-center justify-center gap-2" id="applySimBtn" type="button">
+<span class="material-symbols-outlined text-xl">play_circle</span>
+<span class="">Jalankan &amp; Hitung Ulang Simulasi</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<button class="h-10 px-3 rounded-lg bg-surface-container text-secondary hover:text-primary font-label-ui text-label-ui font-semibold transition-colors flex items-center justify-center gap-1" id="resetDefaultBtn" type="button">
+<span class="material-symbols-outlined text-base">undo</span>
+<span class="">Reset Riil</span>
+</button>
+<button class="h-10 px-3 rounded-lg bg-surface-container text-primary hover:bg-surface-container-high font-label-ui text-label-ui font-semibold transition-colors flex items-center justify-center gap-1" id="saveScenarioBtn" type="button">
+<span class="material-symbols-outlined text-base">save</span>
+<span class="">Simpan Skenario A</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined text-xl">cloud_sync</span>
+</div>
+<div>
+<div class="font-label-ui text-label-ui font-bold text-primary">Sinkronisasi Riil Terakhir</div>
+<div class="font-body-sm text-body-sm text-secondary">Kasir POS Utama: 24 Okt 2024, 21:45 WIB</div>
+</div>
+</div>
+<span class="px-2 py-1 rounded bg-secondary-container text-on-secondary-fixed font-metric-tabular-sm text-metric-tabular-sm font-semibold">Live POS</span>
+</div>
+</div>
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Kondisi Riil Saat Ini</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-caps text-label-caps font-semibold">Baseline Okt</span>
+</div>
+<div class="flex flex-col gap-space-md">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Omzet Riil</span>
+<div class="font-display-kpi text-display-kpi text-primary font-bold tracking-tight mt-0.5">Rp 68.450.000</div>
+<span class="font-body-sm text-body-sm text-secondary">Rata-rata Rp 2.281.000 / hari</span>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2 border-t border-transparent bg-surface-container-low/40 p-2.5 rounded-lg">
+<div>
+<span class="font-label-caps text-label-caps text-secondary block">Total Pengeluaran</span>
+<span class="font-metric-tabular text-metric-tabular text-on-surface font-semibold">Rp 44.630.000</span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-secondary block">Margin Laba</span>
+<span class="font-metric-tabular text-metric-tabular text-on-surface font-semibold">34.8%</span>
+</div>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-secondary uppercase">Laba Bersih Riil</span>
+<div class="font-headline-xl text-headline-xl text-primary font-bold">Rp 23.820.000</div>
+</div>
+</div>
+</div>
+<div class="bg-primary text-on-primary rounded-xl p-space-lg shadow-md flex flex-col justify-between relative overflow-hidden">
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-on-tertiary-container/10 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-label-caps text-label-caps text-primary-fixed uppercase tracking-wider">Estimasi Hasil Simulasi</span>
+<span class="px-2 py-0.5 rounded bg-tertiary-container text-on-tertiary font-label-caps text-label-caps font-semibold">Proyeksi Baru</span>
+</div>
+<div class="flex flex-col gap-space-md relative z-10">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-primary-fixed uppercase">Proyeksi Omzet</span>
+<span class="font-metric-tabular-sm text-metric-tabular-sm px-1.5 py-0.5 rounded bg-surface-container-lowest text-primary font-bold" id="topRevenueGrowthBadge">-24.1%</span>
+</div>
+<div class="font-display-kpi text-display-kpi text-on-primary font-bold tracking-tight mt-0.5" id="simOmzetDisplay">Rp 51.975.000</div>
+<span class="font-body-sm text-body-sm text-primary-fixed-dim" id="simOmzetDeltaSub">Penurunan Rp 16.475.000 dibanding riil</span>
+</div>
+<div class="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-primary-container/80">
+<div>
+<span class="font-label-caps text-label-caps text-primary-fixed-dim block">Proyeksi Biaya</span>
+<span class="font-metric-tabular text-metric-tabular text-on-primary font-semibold" id="simExpenseDisplay">Rp 39.993.000</span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-primary-fixed-dim block">Ekspansi Margin</span>
+<span class="font-metric-tabular text-metric-tabular text-tertiary-fixed font-bold" id="simMarginDisplay">23.1% (-11.7%)</span>
+</div>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-primary-fixed uppercase">Proyeksi Laba Bersih</span>
+<div class="flex items-baseline gap-2">
+<div class="font-headline-xl text-headline-xl text-on-primary font-bold" id="simProfitDisplay">Rp 11.982.000</div>
+<span class="font-metric-tabular-sm text-metric-tabular-sm text-tertiary-fixed font-bold" id="simProfitDeltaBadge">-49.7%</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-space-xs">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Sensitivitas &amp; Analisis Titik Impas (BEP)</h3>
+<span class="font-body-sm text-body-sm text-secondary">Ketahanan margin terhadap fluktuasi pasar dan batas aman minimum volume</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="h-2 w-2 rounded-full bg-tertiary-container"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Zona Keuntungan Aman</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-secondary uppercase">Batas BEP Unit</span>
+<div class="mt-1">
+<span class="font-headline-lg text-headline-lg text-primary font-bold" id="bepUnitVal">920</span>
+<span class="font-body-sm text-body-sm text-secondary"> transaksi / bulan</span>
+</div>
+<div class="mt-2 text-xs font-medium text-secondary">
+              Proyeksi (<span class="text-tertiary-container font-bold" id="bepSafetyPct">+61%</span> di atas BEP)
+            </div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-secondary uppercase">Batas BEP Rupiah</span>
+<div class="mt-1">
+<span class="font-headline-lg text-headline-lg text-primary font-bold" id="bepNominalVal">Rp 32.200.000</span>
+</div>
+<div class="mt-2 text-xs font-medium text-secondary">
+              Penjualan minimum untuk tutup biaya operasional
+            </div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-secondary uppercase">Margin Kontribusi / Cup</span>
+<div class="mt-1">
+<span class="font-headline-lg text-headline-lg text-primary font-bold" id="cmPerCupVal">Rp 21.200</span>
+<span class="font-body-sm text-body-sm text-secondary"> (60.5%)</span>
+</div>
+<div class="mt-2 text-xs font-medium text-tertiary-container font-bold">
+              +Rp 3.700 vs baseline aktual
+            </div>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-3 mt-1">
+<div class="flex items-center justify-between">
+<span class="font-label-caps text-label-caps text-secondary uppercase font-semibold">Peta Sensitivitas Laba (Proyeksi 3 Skenario Pasar)</span>
+<span class="font-metric-tabular-sm text-metric-tabular-sm text-secondary">Rentang Toleransi Estimasi</span>
+</div>
+<div class="space-y-3 pt-1">
+<div>
+<div class="flex justify-between font-label-ui text-label-ui mb-1">
+<span class="text-secondary flex items-center gap-1.5">
+<span class="h-2 w-2 rounded-full bg-outline"></span>
+<span class="">Pesimistis (Volume -8% karena resistensi harga)</span>
+</span>
+<span class="font-metric-tabular text-metric-tabular font-bold text-primary" id="pessimisticVal">Rp 9.825.240</span>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary transition-all duration-500 rounded-full" id="pessimisticBar" style="width: 28.0721%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-ui text-label-ui mb-1">
+<span class="text-primary font-semibold flex items-center gap-1.5">
+<span class="h-2 w-2 rounded-full bg-tertiary-container"></span>
+<span class="">Realistis (Baseline Skenario Pilihan Saat Ini)</span>
+</span>
+<span class="font-metric-tabular text-metric-tabular font-bold text-tertiary-container" id="realisticVal">Rp 11.982.000</span>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary-container transition-all duration-500 rounded-full" id="realisticBar" style="width: 34.2343%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-label-ui text-label-ui mb-1">
+<span class="text-secondary flex items-center gap-1.5">
+<span class="h-2 w-2 rounded-full bg-primary-container"></span>
+<span class="">Optimistis (Program bundling sukses &amp; volume +5%)</span>
+</span>
+<span class="font-metric-tabular text-metric-tabular font-bold text-primary" id="optimisticVal">Rp 13.060.380</span>
+</div>
+<div class="w-full h-3 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary-container transition-all duration-500 rounded-full" id="optimisticBar" style="width: 37.3154%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-tertiary-fixed/30 rounded-xl p-space-lg shadow-sm flex flex-col sm:flex-row items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-tertiary-container text-on-tertiary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-2xl">neurology</span>
+</div>
+<div class="flex flex-col gap-1.5 flex-1">
+<div class="flex items-center justify-between">
+<h4 class="font-headline-sm text-headline-sm text-tertiary font-bold">Rekomendasi CobaDulu (AI Advisor)</h4>
+<span class="px-2 py-0.5 rounded bg-tertiary-container/20 text-tertiary font-label-caps text-label-caps font-bold">SKOR KELAYAKAN: 8.8/10</span>
+</div>
+<p class="font-body-md text-body-md text-on-tertiary-fixed-variant leading-relaxed" id="aiAdvisorText">
+            Skenario ini <strong>sangat layak dieksekusi</strong>. Peningkatan harga Rp 3.000 per cup masih berada dalam rentang toleransi cafe sejenis di area radius 2 km Anda, sementara penambahan barista part-time (biaya +Rp 2.5jt) terkompensasi penuh oleh margin laba yang bertambah Rp 5.610.000.
+          </p>
+<div class="flex flex-wrap items-center gap-3 pt-1 font-body-sm text-body-sm text-tertiary">
+<span class="flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-base">check_circle</span> Risiko Likuiditas: Rendah</span>
+<span class="flex items-center gap-1 font-medium"><span class="material-symbols-outlined text-base">check_circle</span> Waktu Balik Modal Rekrutmen: 14 Hari</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-2xl">verified</span>
+<div>
+<div class="font-label-ui text-label-ui font-bold text-primary">Siap Eksekusi Skenario?</div>
+<div class="font-body-sm text-body-sm text-secondary">Susun SOP bertahap dan bagikan ringkasan kepada tim manajer gerai.</div>
+</div>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none h-11 px-4 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-ui text-label-ui font-semibold transition-colors flex items-center justify-center gap-1.5" id="exportReportBtn" type="button">
+<span class="material-symbols-outlined text-lg">download</span>
+<span class="">Ekspor Lembar Proyeksi</span>
+</button>
+<button class="flex-1 sm:flex-none h-11 px-5 rounded-lg bg-tertiary-container hover:bg-tertiary text-on-tertiary font-label-ui text-label-ui font-bold shadow-md transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap" id="implementPlanBtn" type="button">
+<span class="material-symbols-outlined text-lg">event_available</span>
+<span class="">Buat Rencana Implementasi</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-primary text-on-primary px-space-md py-space-sm rounded-xl shadow-xl flex items-center gap-2.5" id="toastNotification">
+<span class="material-symbols-outlined text-tertiary-fixed text-xl">task_alt</span>
+<span class="font-label-ui text-label-ui font-medium" id="toastMsg">Skenario berhasil disinkronisasi ke ruang simulasi.</span>
+</div>
+</div>
+<script>
+  (function() {
+    const BASELINE = {
+      price: 32000,
+      volume: 1428,
+      cogs: 14500,
+      fixedCost: 17000000,
+      omzet: 68450000,
+      expense: 44630000,
+      profit: 23820000,
+      margin: 34.8
+    };
+
+    const priceSlider = document.getElementById('priceSlider');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const cogsSlider = document.getElementById('cogsSlider');
+    const fixedCostSlider = document.getElementById('fixedCostSlider');
+    const elasticityToggle = document.getElementById('elasticityToggle');
+    const presetSelector = document.getElementById('presetSelector');
+
+    const priceBadge = document.getElementById('priceBadge');
+    const priceDelta = document.getElementById('priceDelta');
+    const volumeBadge = document.getElementById('volumeBadge');
+    const volumeDelta = document.getElementById('volumeDelta');
+    const cogsBadge = document.getElementById('cogsBadge');
+    const cogsDelta = document.getElementById('cogsDelta');
+    const fixedCostBadge = document.getElementById('fixedCostBadge');
+    const fixedCostDelta = document.getElementById('fixedCostDelta');
+
+    const simOmzetDisplay = document.getElementById('simOmzetDisplay');
+    const simOmzetDeltaSub = document.getElementById('simOmzetDeltaSub');
+    const topRevenueGrowthBadge = document.getElementById('topRevenueGrowthBadge');
+    const simExpenseDisplay = document.getElementById('simExpenseDisplay');
+    const simMarginDisplay = document.getElementById('simMarginDisplay');
+    const simProfitDisplay = document.getElementById('simProfitDisplay');
+    const simProfitDeltaBadge = document.getElementById('simProfitDeltaBadge');
+
+    const bepUnitVal = document.getElementById('bepUnitVal');
+    const bepNominalVal = document.getElementById('bepNominalVal');
+    const bepSafetyPct = document.getElementById('bepSafetyPct');
+    const cmPerCupVal = document.getElementById('cmPerCupVal');
+
+    const pessimisticVal = document.getElementById('pessimisticVal');
+    const realisticVal = document.getElementById('realisticVal');
+    const optimisticVal = document.getElementById('optimisticVal');
+    const pessimisticBar = document.getElementById('pessimisticBar');
+    const realisticBar = document.getElementById('realisticBar');
+    const optimisticBar = document.getElementById('optimisticBar');
+
+    const toast = document.getElementById('toastNotification');
+    const toastMsg = document.getElementById('toastMsg');
+
+    function formatRupiah(number) {
+      return 'Rp ' + Math.round(number).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function showToast(text) {
+      toastMsg.textContent = text;
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3200);
+    }
+
+    function calculateSimulation() {
+      const price = parseFloat(priceSlider.value);
+      let volume = parseFloat(volumeSlider.value);
+      const cogs = parseFloat(cogsSlider.value);
+      const fixedCost = parseFloat(fixedCostSlider.value);
+
+      if (elasticityToggle.checked && price > BASELINE.price) {
+        const priceIncreasePct = (price - BASELINE.price) / BASELINE.price;
+        const volumeDropPct = priceIncreasePct * 0.45;
+        volume = Math.round(volume * (1 - volumeDropPct));
+      }
+
+      priceBadge.textContent = formatRupiah(price);
+      const pDiff = ((price - BASELINE.price) / BASELINE.price) * 100;
+      priceDelta.textContent = (pDiff >= 0 ? '+' : '') + pDiff.toFixed(1) + '%';
+
+      volumeBadge.textContent = volume.toLocaleString('id-ID') + ' trx';
+      const vDiff = ((volume - BASELINE.volume) / BASELINE.volume) * 100;
+      volumeDelta.textContent = (vDiff >= 0 ? '+' : '') + vDiff.toFixed(1) + '%';
+
+      cogsBadge.textContent = formatRupiah(cogs);
+      const cDiff = ((cogs - BASELINE.cogs) / BASELINE.cogs) * 100;
+      cogsDelta.textContent = (cDiff >= 0 ? '+' : '') + cDiff.toFixed(1) + '%';
+
+      fixedCostBadge.textContent = formatRupiah(fixedCost);
+      const fcDiff = fixedCost - BASELINE.fixedCost;
+      fixedCostDelta.textContent = (fcDiff >= 0 ? '+Rp ' : '-Rp ') + Math.abs(fcDiff).toLocaleString('id-ID') + ' (' + (fcDiff >= 0 ? '+' : '') + ((fcDiff / BASELINE.fixedCost) * 100).toFixed(1) + '%)';
+
+      const projectedRevenue = price * volume;
+      const totalVariableCost = cogs * volume;
+      const totalExpense = totalVariableCost + fixedCost;
+      const projectedNetProfit = projectedRevenue - totalExpense;
+      const projectedMargin = (projectedNetProfit / projectedRevenue) * 100;
+
+      const revDiff = projectedRevenue - BASELINE.omzet;
+      const revGrowthPct = ((projectedRevenue - BASELINE.omzet) / BASELINE.omzet) * 100;
+      const profitDiff = projectedNetProfit - BASELINE.profit;
+      const profitGrowthPct = ((projectedNetProfit - BASELINE.profit) / BASELINE.profit) * 100;
+
+      simOmzetDisplay.textContent = formatRupiah(projectedRevenue);
+      topRevenueGrowthBadge.textContent = (revGrowthPct >= 0 ? '+' : '') + revGrowthPct.toFixed(1) + '%';
+      simOmzetDeltaSub.textContent = (revDiff >= 0 ? 'Berpotensi +' : 'Penurunan ') + formatRupiah(Math.abs(revDiff)) + ' dibanding riil';
+
+      simExpenseDisplay.textContent = formatRupiah(totalExpense);
+      const marginDiff = projectedMargin - BASELINE.margin;
+      simMarginDisplay.textContent = projectedMargin.toFixed(1) + '% (' + (marginDiff >= 0 ? '+' : '') + marginDiff.toFixed(1) + '%)';
+
+      simProfitDisplay.textContent = formatRupiah(projectedNetProfit);
+      simProfitDeltaBadge.textContent = (profitGrowthPct >= 0 ? '+' : '') + profitGrowthPct.toFixed(1) + '%';
+
+      const contributionMargin = price - cogs;
+      const bepUnits = contributionMargin > 0 ? Math.ceil(fixedCost / contributionMargin) : 0;
+      const bepNominal = bepUnits * price;
+      const safetyMarginUnits = volume - bepUnits;
+      const safetyPct = bepUnits > 0 ? Math.round((safetyMarginUnits / bepUnits) * 100) : 0;
+
+      bepUnitVal.textContent = bepUnits.toLocaleString('id-ID');
+      bepNominalVal.textContent = formatRupiah(bepNominal);
+      bepSafetyPct.textContent = (safetyPct >= 0 ? '+' : '') + safetyPct + '%';
+      cmPerCupVal.textContent = formatRupiah(contributionMargin);
+
+      const pessiProfit = Math.round(projectedNetProfit * 0.82);
+      const optiProfit = Math.round(projectedNetProfit * 1.09);
+
+      pessimisticVal.textContent = formatRupiah(pessiProfit);
+      realisticVal.textContent = formatRupiah(projectedNetProfit);
+      optimisticVal.textContent = formatRupiah(optiProfit);
+
+      const maxValScale = Math.max(optiProfit, 35000000);
+      pessimisticBar.style.width = Math.min(100, Math.max(15, (pessiProfit / maxValScale) * 100)) + '%';
+      realisticBar.style.width = Math.min(100, Math.max(25, (projectedNetProfit / maxValScale) * 100)) + '%';
+      optimisticBar.style.width = Math.min(100, Math.max(35, (optiProfit / maxValScale) * 100)) + '%';
+    }
+
+    [priceSlider, volumeSlider, cogsSlider, fixedCostSlider].forEach(slider => {
+      slider.addEventListener('input', calculateSimulation);
+    });
+
+    elasticityToggle.addEventListener('change', calculateSimulation);
+
+    presetSelector.addEventListener('change', function(e) {
+      const val = e.target.value;
+      if (val === 'preset_price') {
+        priceSlider.value = 35000;
+        volumeSlider.value = 1550;
+        cogsSlider.value = 13800;
+        fixedCostSlider.value = 19500000;
+      } else if (val === 'preset_cogs') {
+        priceSlider.value = 32000;
+        volumeSlider.value = 1428;
+        cogsSlider.value = 13775;
+        fixedCostSlider.value = 17000000;
+      } else if (val === 'preset_staff') {
+        priceSlider.value = 32000;
+        volumeSlider.value = 1800;
+        cogsSlider.value = 14500;
+        fixedCostSlider.value = 20500000;
+      } else if (val === 'preset_conservative') {
+        priceSlider.value = 32000;
+        volumeSlider.value = 1350;
+        cogsSlider.value = 15950;
+        fixedCostSlider.value = 17500000;
+      }
+      calculateSimulation();
+      showToast('Skenario dimuat: ' + e.target.options[e.target.selectedIndex].text);
+    });
+
+    function resetToBaseline() {
+      priceSlider.value = BASELINE.price;
+      volumeSlider.value = BASELINE.volume;
+      cogsSlider.value = BASELINE.cogs;
+      fixedCostSlider.value = BASELINE.fixedCost;
+      elasticityToggle.checked = true;
+      presetSelector.value = 'custom';
+      calculateSimulation();
+      showToast('Data dikembalikan ke nilai riil aktual toko.');
+    }
+
+    document.getElementById('resetParamsBtn').addEventListener('click', resetToBaseline);
+    document.getElementById('resetDefaultBtn').addEventListener('click', resetToBaseline);
+
+    document.getElementById('applySimBtn').addEventListener('click', function() {
+      calculateSimulation();
+      showToast('Simulasi & matriks sensitivitas selesai dihitung ulang.');
+    });
+
+    document.getElementById('saveScenarioBtn').addEventListener('click', function() {
+      showToast('Skenario "Skenario A - Optimasi Margin Q4" berhasil disimpan.');
+    });
+
+    document.getElementById('saveScenarioTopBtn').addEventListener('click', function() {
+      showToast('Draft proyeksi terkini disimpan ke penyimpanan lokal.');
+    });
+
+    document.getElementById('exportReportBtn').addEventListener('click', function() {
+      showToast('Mengunduh lembar proyeksi eksekutif (Format: PDF & XLS)...');
+    });
+
+    document.getElementById('implementPlanBtn').addEventListener('click', function() {
+      showToast('Rencana implementasi dibuat. Membuka panduan tahapan perubahan...');
+    });
+
+    document.getElementById('scenarioCompareBtn').addEventListener('click', function() {
+      showToast('Membuka arsip 3 skenario proyeksi tersimpan.');
+    });
+
+    calculateSimulation();
+  })();
+</script></main></div>
+
+</body></html>
