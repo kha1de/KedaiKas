@@ -12,6 +12,8 @@ KedaiKas dirancang untuk menjembatani kesenjangan antara sekadar mencatat transa
 - [Konsep Inti: Decision-Support Framework](#konsep-inti-decision-support-framework)
 - [Alur Pengguna (User Flow)](#alur-pengguna-user-flow)
 - [Fitur & Modul Sistem](#fitur--modul-sistem)
+- [Arsitektur Role-Based Access Control (RBAC)](#arsitektur-role-based-access-control-rbac)
+- [Akun Demo & Identitas Pengguna](#akun-demo--identitas-pengguna)
 - [Arsitektur Sistem](#arsitektur-sistem)
 - [Teknologi yang Digunakan](#teknologi-yang-digunakan)
 - [Basis Data & Pemodelan Relasional](#basis-data--pemodelan-relasional)
@@ -82,7 +84,7 @@ Siklus pemanfaatan KedaiKas dalam ritme operasional pemilik usaha:
 
 | Tahap | Aktivitas Pengguna | Hasil dalam Sistem |
 |---|---|---|
-| **1. CATAT** | Mencatat transaksi penjualan pelanggan dan merekam pengeluaran operasional (listrik, sewa, transportasi, perlengkapan). | Tersimpan sebagai baris data historis terisolasi per akun pemilik usaha. |
+| **1. CATAT** | Mencatat transaksi penjualan kasir dan merekam pengeluaran operasional toko. | Tersimpan dalam basis data usaha bersama (`id_usaha = 1`), dengan identitas kasir pencatat terekam otomatis (`id_user`). |
 | **2. PAHAMI** | Membuka Dashboard eksekutif untuk melihat ringkasan omzet, HPP, laba kotor, beban operasional, laba bersih, dan tren berkala. | Transparansi kondisi riil kesehatan finansial usaha. |
 | **3. DAPATKAN INSIGHT** | Memeriksa modul Analisis untuk meninjau efisiensi harga jual terhadap pasar, memetakan produk laris bermargin tipis, dan menerima peringatan lonjakan beban. | Identifikasi risiko dan peluang bisnis secara otomatis tanpa rumus manual. |
 | **4. TENTUKAN TARGET** | Memasang sasaran laba bersih nominal untuk periode tertentu (misal: target bulanan). | Sistem menghitung *gap* capaian dan estimasi laba harian yang dibutuhkan. |
@@ -174,6 +176,69 @@ Menghubungkan penetapan sasaran finansial dengan simulasi skenario bisnis:
 - **Ringkasan Angka Utama**: Total transaksi, akumulasi omzet, HPP, laba kotor, total beban operasional, laba bersih, dan margin bersih periode terpilih.
 - **Rincian Kontribusi Produk**: Tabel peringkat produk berdasarkan omzet, kuantitas terjual, total laba kotor yang disumbangkan, dan margin masing-masing dalam periode terkait.
 - **Ekspor Dokumen**: Tersedia tombol cetak langsung (*print view*) yang dioptimalkan untuk browser print-to-PDF.
+
+### 8. Manajemen Tim & Pengguna (Owner-Only)
+- **Sentralisasi Staf Toko**: Antarmuka bagi pemilik untuk mengelola anggota tim dalam satu entitas usaha (`Kedai Berkah UMKM`).
+- **Registrasi Staf Baru**: Menambahkan pengguna baru dengan penetapan peran awal (`Manager` atau `Kasir`).
+- **Pembaruan Peran (Role Delegation)**: Mengubah wewenang anggota tim secara dinamis.
+- **Penghapusan Akses**: Menghapus staf yang sudah tidak bertugas dengan proteksi *self-deletion prevention* (Owner tidak dapat menghapus akunnya sendiri).
+- **Proteksi Otorisasi**: Modul ini terkunci penuh (`HTTP 403 Forbidden` di backend, proteksi navigasi di frontend) untuk role Manager dan Kasir.
+
+### 9. Pengaturan Usaha (Store Settings)
+- **Profil Entitas Usaha**: Menampilkan informasi toko aktif (`Kedai Berkah UMKM`), alamat fisik toko, dan metadata cabang.
+- **Wewenang Pembaruan**: Seluruh staf (Owner, Manager, Kasir) dapat membaca profil toko, namun pengeditan profil hanya dapat dilakukan oleh `Owner`.
+
+---
+
+## Arsitektur Role-Based Access Control (RBAC)
+
+KedaiKas mengimplementasikan model **Multi-User Single-Business**: seluruh pengguna demo dan staf operasional tergabung dalam **SATU USAHA YANG SAMA** (`id_usaha = 1`, *Kedai Berkah UMKM*). Sistem membedakan kewenangan operasional berdasarkan tingkatan peran (*role*):
+
+```
+SATU USAHA (Kedai Berkah UMKM)
+├── 1. OWNER (Darin Hilmi Azzahra)
+│      └── Akses Penuh: Kelola Pengguna, Pengaturan Usaha, Finansial Lengkap, Hapus Data
+├── 2. MANAGER (Daffa Berlliano)
+│      └── Akses Operasional: Dashboard Eksekutif, Katalog Produk, Transaksi, Analisis BI, CobaDulu, Laporan
+└── 3. KASIR (Ahmad Khairul Fatih)
+       └── Akses POS Kasir: Transaksi Penjualan, Riwayat Transaksi, Katalog Produk & Harga
+```
+
+### Matriks Kewenangan (Permission Matrix)
+
+| Modul / Tindakan | Owner | Manager | Kasir | Penegakan Backend | Penegakan Frontend |
+|---|:---:|:---:|:---:|---|---|
+| **Dashboard Eksekutif** (`/dashboard`) | ✅ Ya | ✅ Ya | ❌ Tidak | `HTTP 403` via `require_manager` | Sembunyi di Sidebar; redirect ke `/dashboard/transaksi` |
+| **Transaksi - Entri POS** (`POST /api/transactions`) | ✅ Ya | ✅ Ya | ✅ Ya | `require_any_staff` (user_id kasir dicatat) | Tombol Transaksi Cepat aktif |
+| **Transaksi - Riwayat & Detail** (`GET /api/transactions`) | ✅ Ya | ✅ Ya | ✅ Ya | `require_any_staff` (scoped `id_usaha`) | Menu Transaksi aktif |
+| **Transaksi - Hapus Transaksi** (`DELETE /api/transactions/{id}`) | ✅ Ya | ❌ Tidak | ❌ Tidak | `HTTP 403` via `require_owner` | Tombol Hapus tidak dirender |
+| **Produk - Lihat Katalog** (`GET /api/products`) | ✅ Ya | ✅ Ya | ✅ Ya | `require_any_staff` (scoped `id_usaha`) | Menu Produk aktif |
+| **Produk - Tambah / Edit** (`POST/PUT /api/products`) | ✅ Ya | ✅ Ya | ❌ Tidak | `HTTP 403` via `require_manager` | Tombol Tambah/Edit disembunyikan |
+| **Produk - Hapus Produk** (`DELETE /api/products/{id}`) | ✅ Ya | ❌ Tidak | ❌ Tidak | `HTTP 403` via `require_owner` | Tombol Hapus disembunyikan |
+| **Keuangan / Beban Operasional** (`/api/expenses`) | ✅ Ya | ✅ Ya | ❌ Tidak | `HTTP 403` via `require_manager` | Menu Keuangan disembunyikan |
+| **Analisis BI & Insights** (`/api/analysis/*`) | ✅ Ya | ✅ Ya | ❌ Tidak | `HTTP 403` via `require_manager` | Menu Analisis disembunyikan |
+| **Target Laba** (`/api/targets/*`) | ✅ Ya | ✅ Ya (View) | ❌ Tidak | `HTTP 403` via `require_manager` | Menu Target disembunyikan |
+| **Target Laba - Buat Target Baru** (`POST /api/targets`) | ✅ Ya | ❌ Tidak | ❌ Tidak | `HTTP 403` via `require_owner` | Tombol Tambah Target disembunyikan |
+| **CobaDulu Simulator** (`POST /api/simulation`) | ✅ Ya | ✅ Ya | ❌ Tidak | `HTTP 403` via `require_manager` | Menu CobaDulu disembunyikan |
+| **Laporan Usaha** (`/api/reports`) | ✅ Ya | ✅ Ya | ❌ Tidak | `HTTP 403` via `require_manager` | Menu Laporan disembunyikan |
+| **Manajemen Pengguna** (`/api/users/*`) | ✅ Ya | ❌ Tidak | ❌ Tidak | `HTTP 403` via `require_owner` | Menu Pengguna disembunyikan; Route guard |
+| **Pengaturan Usaha - Lihat** (`GET /api/settings`) | ✅ Ya | ✅ Ya | ✅ Ya | `require_any_staff` | Menu Pengaturan aktif |
+| **Pengaturan Usaha - Edit** (`PUT /api/settings`) | ✅ Ya | ❌ Tidak | ❌ Tidak | `HTTP 403` via `require_owner` | Tombol Edit disembunyikan |
+
+---
+
+## Akun Demo & Identitas Pengguna
+
+Aplikasi dilengkapi 3 akun demo resmi yang telah terkonfigurasi pada basis data `project_warung` dan modul `MockRepository`:
+
+| Peran (Role) | Nama Lengkap | Alamat Email | Password | Status Usaha |
+|---|---|---|---|---|
+| **Owner** | **Darin Hilmi Azzahra** | `dar.hilmi@gmail.com` | `123` | Usaha Utama (`Kedai Berkah UMKM`) |
+| **Manager** | **Daffa Berlliano** | `daf.berlliano@gmail.com` | `123` | Usaha Utama (`Kedai Berkah UMKM`) |
+| **Kasir** | **Ahmad Khairul Fatih** | `ah.khairul@gmail.com` | `123` | Usaha Utama (`Kedai Berkah UMKM`) |
+
+> [!TIP]
+> Pada halaman login (`/login`), tersedia tombol **Pilih Akun Demo Cepat** (1-klik) untuk beralih identitas demo secara instan tanpa perlu mengetik ulang kredensial.
 
 ---
 
@@ -285,37 +350,39 @@ graph TD
 
 ## Basis Data & Pemodelan Relasional
 
-Skema relasional PostgreSQL KedaiKas dibangun di atas 7 entitas utama dengan relasi integritas referensial:
+Skema relasional PostgreSQL KedaiKas dibangun di atas 8 entitas utama yang mendukung arsitektur **Multi-User Single-Business** dengan relasi integritas referensial:
 
 ```mermaid
 erDiagram
-    users ||--o{ products : "memiliki (id_user)"
-    users ||--o{ transactions : "mencatat (id_user)"
-    users ||--o{ expenses : "mengeluarkan (id_user)"
-    users ||--o{ targets : "menetapkan (id_user)"
+    businesses ||--o{ users : "menaungi (id_usaha)"
+    businesses ||--o{ products : "memiliki (id_usaha)"
+    businesses ||--o{ transactions : "memiliki (id_usaha)"
+    businesses ||--o{ expenses : "memiliki (id_usaha)"
+    businesses ||--o{ targets : "memiliki (id_usaha)"
+    users ||--o{ transactions : "mencatat sebagai kasir (id_user)"
     transactions ||--|{ transaction_details : "berisi item (id_transaksi)"
     products ||--o{ transaction_details : "direferensikan (id_produk)"
-    price_references {
-        int id_analisis PK
-        string nama_produk
-        string kategori
-        decimal harga_min
-        decimal harga_max
-        string satuan
-        string sumber
-        timestamp updated_at
+    
+    businesses {
+        int id_usaha PK
+        string nama_usaha
+        string alamat
+        timestamp created_at
     }
 
     users {
         int id_user PK
+        int id_usaha FK
         string nama
         string email UK
         string pass
+        string role
         timestamp created_at
     }
 
     products {
         int id_produk PK
+        int id_usaha FK
         int id_user FK
         string nama_produk
         string kategori
@@ -327,6 +394,7 @@ erDiagram
 
     transactions {
         int id_transaksi PK
+        int id_usaha FK
         int id_user FK
         timestamp tanggal
         decimal total
@@ -344,6 +412,7 @@ erDiagram
 
     expenses {
         int id_expenses PK
+        int id_usaha FK
         int id_user FK
         string kategori
         decimal nominal
@@ -354,46 +423,61 @@ erDiagram
 
     targets {
         int id_target PK
+        int id_usaha FK
         int id_user FK
         decimal target_laba
         date periode_mulai
         date periode_selesai
         timestamp created_at
     }
+
+    price_references {
+        int id_analisis PK
+        string nama_produk
+        string kategori
+        decimal harga_min
+        decimal harga_max
+        string satuan
+        string sumber
+        timestamp updated_at
+    }
 ```
 
 ### Rincian Tabel:
-1. **`users`**: Entitas akun pengguna. Kolom: `id_user` (PK, Serial), `nama`, `email` (Unique), `pass`, `created_at`.
-2. **`products`**: Katalog master produk milik akun. Kolom: `id_produk` (PK, Serial), `id_user` (FK ke `users.id_user` ON DELETE CASCADE), `nama_produk`, `kategori`, `harga_modal`, `harga_jual`, `satuan`, `created_at`.
-3. **`transactions`**: Header transaksi penjualan kasir. Kolom: `id_transaksi` (PK, Serial), `id_user` (FK ke `users.id_user` ON DELETE CASCADE), `tanggal`, `total`, `created_at`.
-4. **`transaction_details`**: Rincian item produk dalam tiap transaksi. Kolom: `id_detail` (PK, Serial), `id_transaksi` (FK ke `transactions.id_transaksi` ON DELETE CASCADE), `id_produk` (FK ke `products.id_produk` ON DELETE CASCADE), `jumlah`, `harga_jual`, `subtotal`.
-5. **`expenses`**: Pengeluaran operasional warung non-HPP. Kolom: `id_expenses` (PK, Serial), `id_user` (FK ke `users.id_user` ON DELETE CASCADE), `kategori`, `nominal`, `tanggal`, `keterangan`, `created_at`.
-6. **`targets`**: Target laba bersih berkala. Kolom: `id_target` (PK, Serial), `id_user` (FK ke `users.id_user` ON DELETE CASCADE), `target_laba`, `periode_mulai`, `periode_selesai`, `created_at`.
-7. **`price_references`**: Tolok ukur (*benchmark*) rentang harga pasar sekitar untuk modul analisis harga. Kolom: `id_analisis` (PK, Serial), `nama_produk`, `kategori`, `harga_min`, `harga_max`, `satuan`, `sumber`, `updated_at` (dilengkapi trigger otomatis `trg_price_references_updated_at`).
+1. **`businesses`**: Entitas profil badan usaha toko UMKM (`id_usaha = 1`, *Kedai Berkah UMKM*). Kolom: `id_usaha` (PK, Serial), `nama_usaha`, `alamat`, `created_at`.
+2. **`users`**: Akun anggota tim/pengguna yang bernaung di bawah usaha. Kolom: `id_user` (PK, Serial), `id_usaha` (FK ke `businesses.id_usaha`), `nama`, `email` (Unique), `pass`, `role` (`owner` / `manager` / `kasir`), `created_at`.
+3. **`products`**: Katalog master produk scoped ke usaha. Kolom: `id_produk` (PK, Serial), `id_usaha` (FK ke `businesses.id_usaha`), `id_user` (FK ke `users.id_user`), `nama_produk`, `kategori`, `harga_modal`, `harga_jual`, `satuan`, `created_at`.
+4. **`transactions`**: Header transaksi penjualan usaha. Kolom: `id_transaksi` (PK, Serial), `id_usaha` (FK ke `businesses.id_usaha`), `id_user` (FK ke `users.id_user` sebagai kasir pencatat), `tanggal`, `total`, `created_at`.
+5. **`transaction_details`**: Rincian item produk dalam tiap transaksi. Kolom: `id_detail` (PK, Serial), `id_transaksi` (FK ke `transactions.id_transaksi`), `id_produk` (FK ke `products.id_produk`), `jumlah`, `harga_jual`, `subtotal`.
+6. **`expenses`**: Pengeluaran operasional warung scoped ke usaha. Kolom: `id_expenses` (PK, Serial), `id_usaha` (FK ke `businesses.id_usaha`), `id_user` (FK), `kategori`, `nominal`, `tanggal`, `keterangan`, `created_at`.
+7. **`targets`**: Target laba bersih berkala scoped ke usaha. Kolom: `id_target` (PK, Serial), `id_usaha` (FK ke `businesses.id_usaha`), `id_user` (FK), `target_laba`, `periode_mulai`, `periode_selesai`, `created_at`.
+8. **`price_references`**: Tolok ukur (*benchmark*) rentang harga pasar sekitar untuk modul analisis harga. Kolom: `id_analisis` (PK, Serial), `nama_produk`, `kategori`, `harga_min`, `harga_max`, `satuan`, `sumber`, `updated_at`.
 
 ---
 
 ## Dataset Demo Pengujian
 
-Untuk mempermudah eksplorasi lokal, pengujian modul analitik, dan presentasi fungsionalitas visual tanpa harus menginput puluhan data secara manual, repositori menyediakan dua tingkatan dataset:
+Untuk mempermudah eksplorasi lokal dan pengujian modul analitik tanpa input manual berulang, repositori menyediakan berkas migrasi dan dataset terintegrasi:
 
-### 1. Base Seed (`database/postgresql_seed.sql`)
-- 3 akun pengguna (`Ahmad Khairul`, `Daffa Berlliano`, `Darin Hilmi`)
-- 4 produk dasar
-- 12 transaksi penjualan
-- 22 rincian item transaksi
-- 4 pengeluaran operasional
-- 2 target usaha
-- 11 data referensi harga pasar (`price_references`)
+### 1. Migrasi Multi-User RBAC (`database/migration_rbac_multiusers.sql`)
+- Skrip migrasi **non-destruktif (zero data loss)** yang menyematkan tabel `businesses`, menambahkan kolom `id_usaha` & `role`, memetakan seluruh relasi foreign key, serta menetapkan hak akses peran demo secara aman.
 
-### 2. Enriched Demo Dataset (`database/seed_ahmad_demo.sql`)
-Dataset terkayakan khusus untuk akun `Ahmad Khairul Fatih` (`id_user = 1`):
-- **31 produk** aktif di bawah akun Ahmad Khairul (dari total 33 produk di tabel) mencakup 6 kategori UMKM: *Makanan Ringan*, *Makanan*, *Minuman*, *Sembako*, *Rumah Tangga*, dan *Perlengkapan*.
-- **54 transaksi penjualan historis** untuk akun Ahmad Khairul (dari total 56 transaksi di tabel) yang terdistribusi realistis sepanjang rentang waktu **Juli, Agustus, hingga September 2026**.
-- **243 baris item detail transaksi** yang mencerminkan pola belanja pelanggan warung sebenarnya.
-- **24 catatan pengeluaran operasional** (listrik warung, sewa kios, bensin transportasi kulakan, kemasan plastik, galon air, dsb.) sepanjang Juli–September 2026.
-- **4 target laba** periodik bulanan.
-- *Karakteristik Skrip*: Bersifat **idempoten** (`ON CONFLICT DO NOTHING`) dan secara otomatis menyinkronkan sequence serial (`setval`) sehingga aman dijalankan berulang kali.
+### 2. Base Seed (`database/postgresql_seed.sql`)
+- 1 entitas usaha utama (`Kedai Berkah UMKM`, `id_usaha = 1`)
+- 3 akun demo terhubung ke usaha utama:
+  - **Darin Hilmi Azzahra** (`role = 'owner'`, `dar.hilmi@gmail.com`)
+  - **Daffa Berlliano** (`role = 'manager'`, `daf.berlliano@gmail.com`)
+  - **Ahmad Khairul Fatih** (`role = 'kasir'`, `ah.khairul@gmail.com`)
+- 4 produk dasar, 12 transaksi penjualan, 22 rincian item transaksi, 4 beban operasional, 2 target laba, dan 11 referensi harga pasar.
+
+### 3. Enriched Historical Demo Dataset (`database/seed_ahmad_demo.sql`)
+Dataset historis komprehensif yang telah dimigrasikan ke dalam lingkup `id_usaha = 1` (*Kedai Berkah UMKM*):
+- **35 produk aktif** di bawah usaha utama mencakup 6 kategori UMKM (*Makanan Ringan*, *Makanan*, *Minuman*, *Sembako*, *Rumah Tangga*, dan *Perlengkapan*).
+- **58 transaksi penjualan historis** yang terdistribusi realistis sepanjang rentang waktu **Juli, Agustus, hingga September 2026** (direkam dengan catatan ID kasir).
+- **250+ baris item detail transaksi** yang mencerminkan basket size pelanggan warung sesungguhnya.
+- **24 catatan pengeluaran operasional** (listrik toko, sewa kios, bensin transportasi, kemasan belanja, galon air, dsb.) sepanjang Juli–September 2026.
+- **4 target laba periodik bulanan**.
+- *Karakteristik Skrip*: Bersifat **idempoten** (`ON CONFLICT DO NOTHING`) dengan sinkronisasi sequence serial otomatis (`setval`).
 
 Dataset ini bertujuan agar grafik telemetri Dashboard (Harian, Mingguan, Bulanan), mesin insight, komparasi finansial 7 hari, dan simulator CobaDulu dapat langsung didemonstrasikan dengan data yang hidup dan masuk akal.
 
@@ -402,7 +486,7 @@ Dataset ini bertujuan agar grafik telemetri Dashboard (Harian, Mingguan, Bulanan
 ## Struktur Direktori Repositori
 
 ```text
-umkm-decision-support/
+KedaiKas/
 ├── README.md                           # Dokumentasi komprehensif repositori proyek
 ├── START PROJECT.bat                   # Batch script otomatis untuk menjalankan backend & frontend (Windows)
 ├── docker-compose.yml                  # Konfigurasi container service opsional
@@ -411,14 +495,14 @@ umkm-decision-support/
 ├── frontend/                           # Aplikasi Web Client (Next.js 15 + TypeScript)
 │   ├── public/                         # Aset publik statis (logo brand SVG, avatar, favicon)
 │   ├── src/
-│   │   ├── app/                        # Direktori rute Next.js App Router (14 rute terkompilasi)
+│   │   ├── app/                        # Direktori rute Next.js App Router (16 rute terkompilasi)
 │   │   │   ├── layout.tsx              # Root HTML layout, font setup, dan metadata aplikasi
 │   │   │   ├── globals.css             # Utility Tailwind dan variabel warna CSS custom
 │   │   │   ├── page.tsx                # Halaman landing / proteksi pengalihan
-│   │   │   ├── login/page.tsx          # Halaman autentikasi masuk
+│   │   │   ├── login/page.tsx          # Halaman autentikasi masuk (dengan Quick Demo Account 1-klik)
 │   │   │   ├── register/page.tsx       # Halaman pendaftaran akun baru
 │   │   │   └── dashboard/              # Halaman antarmuka terproteksi
-│   │   │       ├── layout.tsx          # Layout bersama dashboard (Sidebar navigasi, Header, User Menu)
+│   │   │       ├── layout.tsx          # Layout bersama dashboard (Sidebar navigasi dinamis RBAC, Header, User Menu)
 │   │   │       ├── page.tsx            # Dashboard Eksekutif (Metrik, Chart Recharts, Insight, Target)
 │   │   │       ├── transaksi/page.tsx  # Kasir penjualan dan riwayat transaksi
 │   │   │       ├── produk/page.tsx     # Manajemen katalog produk dan kalkulasi margin
@@ -426,10 +510,13 @@ umkm-decision-support/
 │   │   │       ├── analisis/page.tsx   # Modul BI: Benchmark harga pasar, performa produk, margin tipis
 │   │   │       ├── target/page.tsx     # Penetapan target laba dan pemantauan gap capaian
 │   │   │       ├── cobadulu/page.tsx   # Simulator keputusan skenario bisnis (what-if analysis)
-│   │   │       └── laporan/page.tsx    # Rekapitulasi laporan periodik dan view Cetak/PDF
+│   │   │       ├── laporan/page.tsx    # Rekapitulasi laporan periodik dan view Cetak/PDF
+│   │   │       ├── pengguna/page.tsx   # Manajemen Pengguna & Delegasi Role Staf (Owner-Only)
+│   │   │       └── pengaturan/page.tsx # Profil Usaha & Pengaturan Toko (Owner-Editable)
+│   │   ├── hooks/                      # Custom hooks (usePermission RBAC permission matrix)
 │   │   ├── lib/                        # Utilitas format mata uang Rupiah, tanggal, dan persentase
-│   │   ├── services/                   # Abstraksi klien HTTP API (auth, dashboard, transaksi, analisis, dll.)
-│   │   └── types/                      # Deklarasi antarmuka dan tipe data TypeScript
+│   │   ├── services/                   # Abstraksi klien HTTP API (auth, dashboard, transaksi, analisis, users, dll.)
+│   │   └── types/                      # Deklarasi antarmuka dan tipe data TypeScript (User, UserRole, Business, dll.)
 │   ├── tailwind.config.js              # Konfigurasi token warna Stitch, radius, dan tipografi
 │   ├── tsconfig.json                   # Konfigurasi compiler TypeScript
 │   ├── .env.local.example              # Template variabel lingkungan frontend
@@ -440,22 +527,26 @@ umkm-decision-support/
 │   │   ├── main.py                     # Entry point FastAPI, CORS middleware, global exception handler
 │   │   ├── api/
 │   │   │   ├── router.py               # Agregator rute modular di bawah prefix /api
-│   │   │   └── routes/                 # Modul endpoint: auth, products, transactions, analysis, dll.
+│   │   │   ├── deps.py                 # Dependencies otentikasi JWT & otorisasi RBAC (require_owner, require_manager)
+│   │   │   └── routes/                 # Modul endpoint: auth, products, transactions, analysis, users, settings, dll.
 │   │   ├── core/                       # Pengaturan konfigurasi Settings, database connection, dan security
-│   │   ├── models/                     # Deklarasi model relasional SQLAlchemy 2.0
+│   │   ├── models/                     # Deklarasi model relasional SQLAlchemy 2.0 (Business, User, Product, Tx, dll.)
 │   │   ├── schemas/                    # Skema Pydantic v2 untuk validasi request dan respons JSON
-│   │   ├── repositories/               # Abstraksi data layer (SqlRepository dan MockRepository)
-│   │   ├── services/                   # Layanan logika bisnis murni, analisis, kalkulator, dan simulasi
+│   │   ├── repositories/               # Abstraksi data layer (SqlRepository dan MockRepository dengan isolasi business_id)
+│   │   ├── services/                   # Layanan logika bisnis murni, analisis, user_service, kalkulator, dan simulasi
 │   │   └── utils/                      # Fungsi pembantu: kalkulator keuangan, margin, dan formatter
-│   ├── tests/                          # Automated unit dan integration tests (Pytest)
+│   ├── tests/                          # Automated unit dan integration tests (Pytest - 26 test cases)
+│   │   ├── test_rbac.py                # Pengujian komprehensif RBAC 403 authorization & multi-user data sharing
+│   │   └── ...                         # Pengujian fungsional lainnya
 │   ├── requirements.txt                # Dependensi pustaka Python
 │   ├── pytest.ini                      # Konfigurasi eksekusi pengujian Pytest
 │   └── .env.example                    # Template variabel lingkungan backend
 │
 ├── database/                           # Skrip skema DDL dan data pengujian DML
+│   ├── migration_rbac_multiusers.sql   # Skrip migrasi non-destruktif Multi-User Single-Business RBAC
 │   ├── postgresql_schema.sql           # Skema tabel, foreign key, dan trigger PostgreSQL
-│   ├── postgresql_seed.sql             # Data awal dasar (base seed) PostgreSQL
-│   ├── seed_ahmad_demo.sql             # Dataset pengujian demo historis (30+ produk, transaksi Juli–Sept 2026)
+│   ├── postgresql_seed.sql             # Data awal dasar (base seed) dengan profil usaha & 3 akun demo
+│   ├── seed_ahmad_demo.sql             # Dataset pengujian demo historis (35 produk, transaksi Juli–Sept 2026)
 │   ├── project_warung.sql              # Dump referensi/warisan MariaDB terdahulu
 │   ├── schema.sql                      # Skema kompatibilitas MySQL terdahulu
 │   └── seed.sql                        # Seed data kompatibilitas MySQL terdahulu
@@ -631,58 +722,73 @@ Skrip ini akan secara otomatis membuka jendela terminal Backend FastAPI, jendela
 
 Seluruh endpoint layanan dikelompokkan di bawah prefix `/api`:
 
-| Modul | Method | URL Endpoint | Deskripsi Operasi |
-|---|---|---|---|
-| **System** | `GET` | `/` | Status ketersediaan server dan mode repositori yang aktif |
-| **System** | `GET` | `/api/health` | Health check probe status server (`mock` / `sql`) |
-| **Auth** | `POST` | `/api/auth/register` | Pendaftaran akun baru pemilik warung |
-| **Auth** | `POST` | `/api/auth/login` | Autentikasi akun dan penerbitan Bearer JWT Token |
-| **Auth** | `GET` | `/api/auth/me` | Mengambil data profil pengguna aktif dari token JWT |
-| **Dashboard** | `GET` | `/api/dashboard` | Agregasi metrik eksekutif (omzet, HPP, laba bersih, progress target) |
-| **Products** | `GET` | `/api/products` | Mendapatkan seluruh katalog produk pengguna |
-| **Products** | `POST` | `/api/products` | Menambahkan produk baru (nama, kategori, HPP, harga jual, satuan) |
-| **Products** | `GET` | `/api/products/{id}` | Mengambil data satu produk spesifik |
-| **Products** | `PUT` | `/api/products/{id}` | Memperbarui informasi produk atau penyesuaian harga |
-| **Products** | `DELETE` | `/api/products/{id}` | Menghapus produk dari katalog |
-| **Transactions** | `GET` | `/api/transactions` | Mengambil seluruh riwayat transaksi penjualan beserta rincian item |
-| **Transactions** | `POST` | `/api/transactions` | Menyimpan transaksi baru kasir lengkap beserta item yang dibeli |
-| **Transactions** | `GET` | `/api/transactions/{id}`| Mengambil satu nota transaksi spesifik beserta rincian item |
-| **Expenses** | `GET` | `/api/expenses` | Mengambil daftar pengeluaran operasional warung |
-| **Expenses** | `POST` | `/api/expenses` | Mencatat beban pengeluaran baru (kategori, nominal, tanggal, keterangan) |
-| **Expenses** | `DELETE` | `/api/expenses/{id}` | Menghapus baris pencatatan beban operasional |
-| **Analysis** | `GET` | `/api/analysis/price-comparison` | Komparasi harga jual produk terhadap rentang referensi pasar |
-| **Analysis** | `GET` | `/api/analysis/products` | Analisis produk terlaris, omzet tertinggi, margin tinggi, dan margin tipis |
-| **Analysis** | `GET` | `/api/analysis/financial` | Komparasi tren pertumbuhan finansial 7 hari terkini vs 7 hari lalu |
-| **Analysis** | `GET` | `/api/analysis/insights` | Peringatan otomatis, deteksi lonjakan biaya, dan insight bisnis |
-| **Targets** | `GET` | `/api/targets` | Mengambil riwayat penetapan target laba pengguna |
-| **Targets** | `POST` | `/api/targets` | Menetapkan target laba bersih dan rentang tanggal baru |
-| **Targets** | `GET` | `/api/targets/current` | Mengambil target laba yang sedang aktif saat ini |
-| **Simulation** | `POST` | `/api/simulation` | Menjalankan simulasi skenario bisnis *CobaDulu* (non-mutatif di memori) |
-| **Reports** | `GET` | `/api/reports` | Rekapitulasi laporan performa usaha dengan filter tanggal mulai/selesai |
+| Modul | Method | URL Endpoint | Izin Akses (*RBAC*) | Deskripsi Operasi |
+|---|---|---|---|---|
+| **System** | `GET` | `/` | Publik | Status ketersediaan server dan mode repositori yang aktif |
+| **System** | `GET` | `/api/health` | Publik | Health check probe status server (`mock` / `sql`) |
+| **Auth** | `POST` | `/api/auth/register` | Publik | Pendaftaran akun baru pemilik warung |
+| **Auth** | `POST` | `/api/auth/login` | Publik | Autentikasi akun dan penerbitan Bearer JWT Token |
+| **Auth** | `GET` | `/api/auth/me` | Semua Staf | Mengambil data profil pengguna aktif dari token JWT |
+| **Dashboard** | `GET` | `/api/dashboard` | Owner, Manager | Agregasi metrik eksekutif (omzet, HPP, laba bersih, progress target) |
+| **Products** | `GET` | `/api/products` | Semua Staf | Mendapatkan seluruh katalog produk usaha (`id_usaha`) |
+| **Products** | `POST` | `/api/products` | Owner, Manager | Menambahkan produk baru ke katalog usaha |
+| **Products** | `GET` | `/api/products/{id}` | Semua Staf | Mengambil data satu produk spesifik |
+| **Products** | `PUT` | `/api/products/{id}` | Owner, Manager | Memperbarui data produk atau penyesuaian harga jual |
+| **Products** | `DELETE` | `/api/products/{id}` | **Owner Only** | Menghapus produk dari katalog usaha |
+| **Transactions** | `GET` | `/api/transactions` | Semua Staf | Mengambil riwayat transaksi penjualan usaha beserta rincian item |
+| **Transactions** | `POST` | `/api/transactions` | Semua Staf | Mencatat transaksi kasir (identitas kasir dicatat otomatis via `id_user`) |
+| **Transactions** | `GET` | `/api/transactions/{id}`| Semua Staf | Mengambil satu nota transaksi spesifik beserta rincian item |
+| **Transactions** | `DELETE` | `/api/transactions/{id}`| **Owner Only** | Menghapus nota transaksi penjualan dari sistem |
+| **Expenses** | `GET` | `/api/expenses` | Owner, Manager | Mengambil daftar pengeluaran operasional usaha |
+| **Expenses** | `POST` | `/api/expenses` | Owner, Manager | Mencatat beban operasional baru toko |
+| **Expenses** | `PUT` | `/api/expenses/{id}` | Owner, Manager | Memperbarui catatan beban operasional |
+| **Expenses** | `DELETE` | `/api/expenses/{id}` | **Owner Only** | Menghapus baris pencatatan beban operasional |
+| **Analysis** | `GET` | `/api/analysis/price` | Owner, Manager | Komparasi harga jual produk terhadap rentang referensi pasar |
+| **Analysis** | `GET` | `/api/analysis/products` | Owner, Manager | Analisis produk terlaris, omzet tertinggi, margin tinggi, dan margin tipis |
+| **Analysis** | `GET` | `/api/analysis/finance` | Owner, Manager | Komparasi tren pertumbuhan finansial 7 hari terkini vs 7 hari lalu |
+| **Analysis** | `GET` | `/api/analysis/insights` | Owner, Manager | Peringatan dini, deteksi lonjakan biaya, dan insight bisnis |
+| **Targets** | `GET` | `/api/targets` | Owner, Manager | Mengambil riwayat penetapan target laba usaha |
+| **Targets** | `GET` | `/api/targets/progress` | Owner, Manager | Monitoring capaian target aktif dan perhitungan sisa gap harian |
+| **Targets** | `POST` | `/api/targets` | **Owner Only** | Menetapkan target laba bersih nominal dan periode baru |
+| **Targets** | `PUT` | `/api/targets/{id}` | **Owner Only** | Memperbarui target laba usaha |
+| **Simulation** | `POST` | `/api/simulation` | Owner, Manager | Menjalankan simulasi skenario bisnis *CobaDulu* (non-mutatif di memori) |
+| **Reports** | `GET` | `/api/reports` | Owner, Manager | Rekapitulasi laporan performa usaha dengan filter tanggal mulai/selesai |
+| **Users** | `GET` | `/api/users` | **Owner Only** | Mengambil seluruh daftar staf yang tergabung dalam usaha |
+| **Users** | `POST` | `/api/users` | **Owner Only** | Mendaftarkan staf baru ke dalam usaha (`Manager` / `Kasir`) |
+| **Users** | `PUT` | `/api/users/{id}/role` | **Owner Only** | Memperbarui peran staf operasional |
+| **Users** | `DELETE` | `/api/users/{id}` | **Owner Only** | Menghapus akun staf dari sistem usaha |
+| **Settings** | `GET` | `/api/settings` | Semua Staf | Mengambil informasi profil toko usaha aktif |
+| **Settings** | `PUT` | `/api/settings` | **Owner Only** | Memperbarui nama dan alamat toko usaha |
 
 ---
 
 ## Autentikasi & Keamanan Data
 
-- **Token-Based Authentication**: Menggunakan standar industri **JSON Web Token (JWT)** dengan algoritma enkripsi tanda tangan digital `HS256`.
-- **Isolasi Data Tingkat Akun**:
-  Seluruh data operasional (produk, transaksi, rincian nota, beban pengeluaran, target) terikat ketat dengan `id_user` dari token JWT yang terverifikasi. Pengguna tidak memiliki akses terhadap pembukuan akun usaha lain.
+- **Token-Based Authentication**: Menggunakan standar industri **JSON Web Token (JWT)** dengan algoritma enkripsi tanda tangan digital `HS256`, memuat klaim subjek pengguna (`sub`), peran (`role`), dan identitas usaha (`id_usaha`).
+- **Isolasi Data Berbasis Usaha (Single-Business Data Scoping)**:
+  Seluruh data operasional (produk, transaksi, rincian nota, beban pengeluaran, target) terikat ketat dengan `id_usaha = 1` (*Kedai Berkah UMKM*). Pengguna dalam satu usaha berbagi data operasional yang sama secara konsisten.
+- **Backend Role-Based Authorization (RBAC 403 Forbidden)**:
+  Penegakan hak akses dilakukan secara independen di lapisan backend FastAPI menggunakan dependency generator `require_roles(['owner', ...])`. Setiap request yang melanggar batas kewenangan peran langsung ditolak dengan status kode `HTTP 403 Forbidden`.
+- **Frontend Role-Based UX & Route Guard**:
+  Di lapisan klien Next.js, navigasi sidebar dan elemen interaktif disesuaikan dengan peran pengguna melalui matrix `usePermission`. Rute terlarang (seperti akses kasir ke dashboard eksekutif) dialihkan secara otomatis ke rute yang berhak (`/dashboard/transaksi`).
 - **Keamanan Password**:
-  Password akun baru di-hash satu arah menggunakan algoritma `bcrypt` dengan salt dinamis. Modul `backend/app/core/security.py` dilengkapi logika verifikasi bertingkat untuk mendukung kompatibilitas akun pada data bawaan seed tanpa mengurangi standar keamanan registrasi akun baru.
+  Password akun baru di-hash satu arah menggunakan algoritma `bcrypt` dengan salt dinamis. Modul `backend/app/core/security.py` dilengkapi logika verifikasi bertingkat untuk mendukung kompatibilitas akun demo tanpa mengurangi standar keamanan registrasi akun baru.
 
 ---
 
 ## Pengujian (Testing) & Validasi Build
 
 ### 1. Pengujian Otomatis Backend (Pytest)
-Repositori backend menyertakan berkas pengujian otomatis menggunakan **Pytest** untuk memvalidasi logika inti:
-- **Cakupan Pengujian**:
-  - `test_financial_calc.py`: Logika formulasi metrik finansial, HPP, margin kotor/bersih, dan perhitungan progres target laba.
-  - `test_simulation.py`: Verifikasi bahwa simulator *CobaDulu* murni memproyeksikan skenario di memori tanpa memutasi (*non-mutating*) data asli di repository.
-  - `test_analysis.py`: Verifikasi algoritma komparasi benchmark harga pasar, deteksi produk margin tipis, dan pembentukan peringatan (*insights & warnings*).
-  - `test_products.py` & `test_transactions.py`: Perhitungan margin dan kalkulasi subtotal transaksi.
-  - `test_sql_repository.py`: Verifikasi pemetaan kolom dan skema tabel SQLAlchemy terhadap database relasional.
-  - `test_auth.py`: Pengujian endpoint login dan proteksi token.
+Repositori backend menyertakan berkas pengujian otomatis menggunakan **Pytest** untuk memvalidasi seluruh lapisan sistem:
+- **Cakupan Pengujian (26 Test Cases - 100% Pass Rate)**:
+  - `test_rbac.py` (5 test scenarios): Verifikasi login 3 akun demo resmi, penegakan restriksi Kasir (`HTTP 403 Forbidden`), batas wewenang Manager, kewenangan penuh Owner, dan alur kolaborasi data multi-user (kasir membuat transaksi -> manager & owner melihat -> owner menghapus).
+  - `test_financial_calc.py` (3 tests): Formulasi metrik finansial, HPP, margin kotor/bersih, dan kalkulasi progres target laba.
+  - `test_simulation.py` (1 test): Verifikasi bahwa simulator *CobaDulu* murni memproyeksikan skenario di memori tanpa memutasi (*non-mutating*) data asli.
+  - `test_analysis.py` (4 tests): Algoritma komparasi benchmark pasar, deteksi produk margin tipis, dan pembentukan peringatan (*insights*).
+  - `test_products.py` (3 tests): Kalkulasi margin dinamis dan operasional CRUD katalog produk.
+  - `test_transactions.py` (2 tests): Perhitungan otomatis subtotal transaksi dan integritas rincian nota.
+  - `test_sql_repository.py` (4 tests): Pemetaan kolom SQLAlchemy dan isolasi `business_id` pada repositori relasional.
+  - `test_auth.py` (4 tests): Alur login JWT, proteksi endpoint, dan registrasi staf.
 
 Untuk menjalankan pengujian backend:
 ```bash
@@ -690,11 +796,14 @@ cd backend
 python -m pytest tests -v
 ```
 
-> [!NOTE]
-> Rangkaian pengujian saat ini berjumlah **21 test cases** yang berfokus pada verifikasi logika komputasi internal, pemetaan relasional, dan invariansi non-mutasi simulator. Karena sebagian test fixture dirancang untuk kondisi in-memory awal tertentu, pengujian ini berfungsi sebagai alat bantu pengembang (*developer verification suite*) dan bukan merupakan representasi cakupan CI/CD produksi 100%.
+Hasil eksekusi:
+```text
+======================== 26 passed in 4.28s ========================
+```
+*Catatan: Seluruh 26 pengujian berhasil lolos baik pada mode database PostgreSQL (`USE_MOCK_REPO=false`) maupun mode fallback in-memory (`USE_MOCK_REPO=true`).*
 
 ### 2. Validasi Build Frontend (Next.js)
-Kompilasi TypeScript dan bundel produksi Next.js dapat divalidasi dengan menjalankan:
+Kompilasi TypeScript dan bundel produksi Next.js divalidasi dengan menjalankan:
 ```bash
 cd frontend
 npm run build
@@ -703,12 +812,28 @@ npm run build
 
 Hasil kompilasi produksi:
 ```text
-✓ Compiled successfully
-✓ Linting and checking validity of types passed
-✓ Generating static pages (14/14)
-✓ Finalizing page optimization completed (Exit code 0)
+   ▲ Next.js 15.5.25
+ ✓ Compiled successfully in 4.7s
+   Linting and checking validity of types ...
+ ✓ Generating static pages (16/16)
+   Finalizing page optimization ...
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    1.13 kB         104 kB
+├ ○ /_not-found                            991 B         104 kB
+├ ○ /dashboard                           8.79 kB         115 kB
+├ ○ /dashboard/analisis                  4.31 kB         107 kB
+├ ○ /dashboard/cobadulu                  4.61 kB         107 kB
+├ ○ /dashboard/keuangan                  6.18 kB         109 kB
+├ ○ /dashboard/laporan                   3.78 kB         106 kB
+├ ○ /dashboard/pengaturan                4.62 kB         107 kB
+├ ○ /dashboard/pengguna                   5.9 kB         109 kB
+├ ○ /dashboard/produk                    6.28 kB         109 kB
+├ ○ /dashboard/target                    4.41 kB         107 kB
+├ ○ /dashboard/transaksi                 6.04 kB         109 kB
+├ ○ /login                               7.48 kB         113 kB
+└ ○ /register                            2.38 kB         108 kB
 ```
-Seluruh 14 rute halaman (termasuk halaman publik, autentikasi, dan modul-modul dashboard) lolos validasi tipe data TypeScript tanpa error.
+Seluruh 16 rute halaman terkompilasi bersih tanpa peringatan atau kesalahan tipe TypeScript.
 
 ---
 
@@ -733,12 +858,13 @@ Proyek ini mendemonstrasikan penerapan praktik rekayasa perangkat lunak modern:
 
 1. **Clean Separation of Concerns**: Pemisahan tegas antara antarmuka reaktif (Next.js) dan mesin pemrosesan bisnis (FastAPI).
 2. **RESTful Architecture & Typed Contracts**: Kontrak pertukaran data yang ketat menggunakan skema Pydantic v2 di backend dan TypeScript interface di frontend.
-3. **Service-Oriented Business Logic**: Logika kalkulasi bisnis, analisis perbandingan, dan skenario simulasi dipisahkan ke dalam *service layer* mandiri, bukan ditumpuk di dalam route handler.
-4. **Repository Pattern with Fallback**: Abstraksi data layer yang memungkinkan pengalihan instan antara PostgreSQL nyata (`SqlRepository`) dan mode in-memory terisolasi (`MockRepository`) melalui environment variable.
-5. **Relational Integrity in PostgreSQL**: Pemanfaatan *foreign key constraints* dengan aksi `CASCADE`, pembuatan indeks pada kolom foreign key untuk kecepatan query, serta trigger fungsi otomatis untuk pembaruan timestamp.
-6. **Stateless JWT Security**: Sistem autentikasi stateless dengan isolasi data antar pengguna yang aman.
-7. **Pure In-Memory Simulation Engine**: Mesin CobaDulu menjamin simulasi *what-if* berjalan cepat dan aman tanpa meninggalkan residu atau mengubah data pembukuan asli toko.
-8. **Dynamic Transaction-Derived Telemetry**: Visualisasi data chart tidak mengandalkan angka tiruan, melainkan dikompilasi secara dinamis dari agregasi tanggal dan subtotal transaksi aktual.
+3. **Multi-User Single-Business RBAC**: Pengelolaan hak akses berbasis peran (Owner, Manager, Kasir) dengan otorisasi ganda di backend (`HTTP 403`) dan frontend (matriks izin & route guard).
+4. **Service-Oriented Business Logic**: Logika kalkulasi bisnis, analisis perbandingan, dan skenario simulasi dipisahkan ke dalam *service layer* mandiri, bukan ditumpuk di dalam route handler.
+5. **Repository Pattern with Fallback**: Abstraksi data layer yang memungkinkan pengalihan instan antara PostgreSQL nyata (`SqlRepository`) dan mode in-memory terisolasi (`MockRepository`) melalui environment variable.
+6. **Relational Integrity in PostgreSQL**: Pemanfaatan *foreign key constraints* dengan aksi `CASCADE`, pembuatan indeks pada kolom foreign key untuk kecepatan query, serta trigger fungsi otomatis untuk pembaruan timestamp.
+7. **Stateless JWT Security with Role Claims**: Sistem autentikasi stateless dengan token JWT yang memuat identitas peran dan id usaha pengguna.
+8. **Pure In-Memory Simulation Engine**: Mesin CobaDulu menjamin simulasi *what-if* berjalan cepat dan aman tanpa meninggalkan residu atau mengubah data pembukuan asli toko.
+9. **Dynamic Transaction-Derived Telemetry**: Visualisasi data chart tidak mengandalkan angka tiruan, melainkan dikompilasi secara dinamis dari agregasi tanggal dan subtotal transaksi aktual.
 
 ---
 
@@ -746,9 +872,10 @@ Proyek ini mendemonstrasikan penerapan praktik rekayasa perangkat lunak modern:
 
 KedaiKas saat ini berada pada tahap **functional local development & portfolio project**:
 - Seluruh arsitektur frontend (Next.js 15) dan backend (FastAPI) telah terintegrasi secara penuh.
+- Arsitektur **Multi-User Single-Business RBAC** telah terverifikasi penuh di seluruh modul sistem.
 - Integrasi basis data PostgreSQL telah aktif dengan skema relasional, data awal (base seed), dan dataset demo pengujian terkayakan (Juli–September 2026).
-- Seluruh modul fungsional (Dashboard, Transaksi, Produk, Keuangan, Analisis & Insight, Target Laba, Simulator CobaDulu, dan Laporan) telah selesai diimplementasikan.
-- Rangkaian pengujian unit backend dan kompilasi build produksi frontend (14 rute statis) berhasil dieksekusi.
+- 9 modul fungsional (Dashboard, Transaksi, Produk, Keuangan, Analisis & Insight, Target Laba, Simulator CobaDulu, Laporan, dan Tim & Pengguna) telah selesai diimplementasikan.
+- Rangkaian pengujian unit backend (26 test cases) dan kompilasi build produksi frontend (16 rute statis) berhasil lolos 100%.
 
 > [!NOTE]
 > Project ini dikembangkan dan dikelola sebagai lingkungan pengembangan lokal (*local development / portfolio showcase*). Repositori ini tidak mengklaim deployment cloud aktif berskala enterprise, infrastruktur terdistribusi, atau integrasi model AI/ML generatif.

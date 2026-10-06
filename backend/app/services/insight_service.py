@@ -10,12 +10,12 @@ class InsightService:
         self.repo = repo
         self.analysis_service = AnalysisService(repo)
 
-    def generate_insights_and_warnings(self, user_id: int) -> Dict[str, Any]:
+    def generate_insights_and_warnings(self, business_id: int) -> Dict[str, Any]:
         insights = []
         warnings = []
 
         # 1. Analyze Financial Growth & Expenses
-        fin_analysis = self.analysis_service.get_financial_analysis(user_id)
+        fin_analysis = self.analysis_service.get_financial_analysis(business_id)
         curr_fin = fin_analysis["periode_ini"]
         prev_fin = fin_analysis["periode_lalu"]
         pct_omzet = fin_analysis["perubahan_omzet_persen"]
@@ -64,7 +64,7 @@ class InsightService:
             })
 
         # 2. Analyze Product Performance & Thin Margins
-        prod_analysis = self.analysis_service.get_product_analysis(user_id)
+        prod_analysis = self.analysis_service.get_product_analysis(business_id)
         laris_tipis = prod_analysis.get("produk_laris_margin_rendah", [])
         for item in laris_tipis:
             insights.append({
@@ -94,11 +94,11 @@ class InsightService:
                 })
 
         # 3. Analyze Target Progress
-        latest_target = self.repo.get_latest_target(user_id)
+        latest_target = self.repo.get_latest_target(business_id)
         if latest_target:
-            products_map = {p["id"]: p for p in self.repo.get_products(user_id)}
-            all_tx = self.repo.get_transactions(user_id)
-            all_exp = self.repo.get_expenses(user_id)
+            products_map = {p["id"]: p for p in self.repo.get_products(business_id)}
+            all_tx = self.repo.get_transactions(business_id)
+            all_exp = self.repo.get_expenses(business_id)
             all_metrics = calculate_financial_metrics(all_tx, products_map, all_exp)
 
             t_prog = calculate_target_progress(

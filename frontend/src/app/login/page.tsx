@@ -32,27 +32,28 @@ interface DemoAccount {
 
 const DEMO_ACCOUNTS: DemoAccount[] = [
   {
-    id: 1,
-    nama: "Ahmad Khairul",
-    email: "ah.khairul@gmail.com",
-    role: "Pemilik Warung Sembako",
+    id: 3,
+    nama: "Darin Hilmi Azzahra",
+    email: "dar.hilmi@gmail.com",
+    role: "Owner",
     defaultPass: "123",
   },
   {
     id: 2,
     nama: "Daffa Berlliano",
     email: "daf.berlliano@gmail.com",
-    role: "Pemilik Kedai Kopi & Makan",
+    role: "Manager",
     defaultPass: "123",
   },
   {
-    id: 3,
-    nama: "Darin Hilmi",
-    email: "dar.hilmi@gmail.com",
-    role: "Pemilik Toko Kelontong",
+    id: 1,
+    nama: "Ahmad Khairul Fatih",
+    email: "ah.khairul@gmail.com",
+    role: "Kasir",
     defaultPass: "123",
   },
 ];
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -77,7 +78,12 @@ export default function LoginPage() {
 
     try {
       await authService.login({ email, password });
-      router.push("/dashboard");
+      const stored = authService.getStoredUser();
+      if (stored?.role === "kasir") {
+        router.push("/dashboard/transaksi");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -388,12 +394,18 @@ export default function LoginPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {DEMO_ACCOUNTS.map((acc) => {
                   const isSelected = email === acc.email;
+                  const roleColorMap: Record<string, string> = {
+                    "Owner": "bg-amber-100 text-amber-800 border-amber-200",
+                    "Manager": "bg-blue-100 text-blue-800 border-blue-200",
+                    "Kasir": "bg-emerald-100 text-emerald-800 border-emerald-200",
+                  };
+                  const roleBadge = roleColorMap[acc.role] ?? "bg-gray-100 text-gray-700 border-gray-200";
                   return (
                     <button
                       key={acc.id}
                       type="button"
                       onClick={() => handleSelectDemoAccount(acc)}
-                      className={`p-2 rounded-xl border text-left transition-all flex flex-col justify-between gap-1 ${
+                      className={`p-2 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
                         isSelected
                           ? "border-primary bg-primary/5 ring-1 ring-primary/20 shadow-xs"
                           : "border-stitch-border bg-surface-container-low/50 hover:bg-surface-container hover:border-outline-variant"
@@ -403,11 +415,14 @@ export default function LoginPage() {
                         <span className="text-xs font-bold text-primary truncate">{acc.nama}</span>
                         {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
                       </div>
-                      <span className="text-[10px] text-secondary truncate">{acc.role}</span>
+                      <span className={`self-start text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${roleBadge}`}>
+                        {acc.role}
+                      </span>
                     </button>
                   );
                 })}
               </div>
+
             </div>
 
             {/* Contextual SSO & Security Verification Buttons */}

@@ -1,3 +1,4 @@
+from app.models.business import Business
 from app.models.user import User
 from app.models.product import Product
 from app.models.transaction import Transaction
@@ -7,6 +8,7 @@ from app.models.target import Target
 from app.models.price_reference import PriceReference
 
 __all__ = [
+    "Business",
     "User",
     "Product",
     "Transaction",

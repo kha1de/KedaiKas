@@ -7,18 +7,18 @@ class DashboardService:
     def __init__(self, repo: BaseRepository):
         self.repo = repo
 
-    def get_dashboard_data(self, user_id: int) -> Dict[str, Any]:
-        products = self.repo.get_products(user_id)
+    def get_dashboard_data(self, business_id: int) -> Dict[str, Any]:
+        products = self.repo.get_products(business_id)
         products_map = {p["id"]: p for p in products}
 
-        transactions = self.repo.get_transactions(user_id)
-        expenses = self.repo.get_expenses(user_id)
+        transactions = self.repo.get_transactions(business_id)
+        expenses = self.repo.get_expenses(business_id)
 
         # Calculate metrics using business calculator
         metrics = calculate_financial_metrics(transactions, products_map, expenses)
 
         # Target calculation
-        latest_target = self.repo.get_latest_target(user_id)
+        latest_target = self.repo.get_latest_target(business_id)
         if latest_target:
             target_prog = calculate_target_progress(
                 target_laba=latest_target["target_laba"],

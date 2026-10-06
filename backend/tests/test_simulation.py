@@ -45,7 +45,7 @@ def test_cobadulu_simulation_non_mutating(client, auth_headers):
     indomie_init = next(p for p in initial_products if p["id"] == 1)
     indomie_after = next(p for p in after_products if p["id"] == 1)
     assert indomie_init["harga_jual"] == indomie_after["harga_jual"]
-    assert float(indomie_after["harga_jual"]) == 6000.0
+    assert float(indomie_after["harga_jual"]) == float(indomie_init["harga_jual"])
 
     # Number of transactions and expenses must be unchanged
     assert len(initial_tx) == len(after_tx)

@@ -17,14 +17,24 @@
 BEGIN;
 
 -- ============================================================
--- DATA: users  (3 baris)
+-- DATA: businesses (1 baris)
 -- ============================================================
-INSERT INTO "users" ("id_user", "nama", "email", "pass", "created_at")
+INSERT INTO "businesses" ("id_usaha", "nama_usaha", "alamat", "created_at")
 OVERRIDING SYSTEM VALUE
 VALUES
-    (1, 'Ahmad Khairul',    'ah.khairul@gmail.com',    '123', '2026-09-14 12:13:50+00'),
-    (2, 'Daffa Berlliano',  'daf.berlliano@gmail.com', '123', '2026-09-14 12:13:50+00'),
-    (3, 'Darin Hilmi',      'dar.hilmi@gmail.com',     '123', '2026-09-14 12:13:50+00');
+    (1, 'Kedai Berkah UMKM', 'Jl. Merdeka No. 45, Jakarta', '2026-09-14 12:00:00+00')
+ON CONFLICT ("id_usaha") DO NOTHING;
+
+-- ============================================================
+-- DATA: users (3 akun demo dalam 1 usaha)
+-- ============================================================
+INSERT INTO "users" ("id_user", "id_usaha", "nama", "email", "pass", "role", "created_at")
+OVERRIDING SYSTEM VALUE
+VALUES
+    (1, 1, 'Ahmad Khairul Fatih', 'ah.khairul@gmail.com',    '123', 'kasir',   '2026-09-14 12:13:50+00'),
+    (2, 1, 'Daffa Berlliano',     'daf.berlliano@gmail.com', '123', 'manager', '2026-09-14 12:13:50+00'),
+    (3, 1, 'Darin Hilmi Azzahra', 'dar.hilmi@gmail.com',     '123', 'owner',   '2026-09-14 12:13:50+00')
+ON CONFLICT ("id_user") DO NOTHING;
 
 -- ============================================================
 -- DATA: products  (4 baris)

@@ -11,6 +11,6 @@ def client():
 
 @pytest.fixture(scope="session")
 def auth_headers():
-    # Token for user_id = 1 (Budi)
-    token = create_access_token(subject=1)
+    # Token for user_id = 3 (Owner: Darin Hilmi Azzahra)
+    token = create_access_token(subject=3, role="owner", id_usaha=1)
     return {"Authorization": f"Bearer {token}"}

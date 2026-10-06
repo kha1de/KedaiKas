@@ -9,8 +9,8 @@ class AnalysisService:
     def __init__(self, repo: BaseRepository):
         self.repo = repo
 
-    def get_price_analysis(self, user_id: int) -> Dict[str, Any]:
-        products = self.repo.get_products(user_id)
+    def get_price_analysis(self, business_id: int) -> Dict[str, Any]:
+        products = self.repo.get_products(business_id)
         price_refs = self.repo.get_price_references()
 
         # Build reference lookup map by normalized name
@@ -21,7 +21,6 @@ class AnalysisService:
         items = []
         for p in products:
             p_name = p["nama_produk"].strip().lower()
-            # Match reference: exact or partial
             matched_ref = None
             for r_name, ref in ref_map.items():
                 if r_name in p_name or p_name in r_name:
@@ -77,10 +76,10 @@ class AnalysisService:
 
         return {"items": items}
 
-    def get_product_analysis(self, user_id: int) -> Dict[str, Any]:
-        products = self.repo.get_products(user_id)
+    def get_product_analysis(self, business_id: int) -> Dict[str, Any]:
+        products = self.repo.get_products(business_id)
         products_map = {p["id"]: p for p in products}
-        transactions = self.repo.get_transactions(user_id)
+        transactions = self.repo.get_transactions(business_id)
 
         # Aggregate sales by product
         sales_agg: Dict[int, Dict[str, Any]] = {}
@@ -114,27 +113,18 @@ class AnalysisService:
 
         all_items = list(sales_agg.values())
 
-        # Format currency & roundings
         for item in all_items:
             item["total_omzet"] = round_currency(item["total_omzet"])
             item["total_hpp"] = round_currency(item["total_hpp"])
             item["total_laba"] = round_currency(item["total_laba"])
-            # Recalculate realized margin
             if item["total_omzet"] > Decimal("0"):
                 m = float((item["total_laba"] / item["total_omzet"]) * Decimal("100"))
                 item["margin_persen"] = round(m, 2)
 
-        # 1. Produk Terlaris (Qty)
         produk_terlaris = sorted(all_items, key=lambda x: x["total_terjual"], reverse=True)
-
-        # 2. Produk Omzet Tertinggi
         produk_omzet = sorted(all_items, key=lambda x: x["total_omzet"], reverse=True)
-
-        # 3. Produk Margin Tertinggi
         produk_margin = sorted(all_items, key=lambda x: x["margin_persen"], reverse=True)
 
-        # 4. Produk Laris tapi Margin Rendah:
-        # Terjual di atas rata-rata ATAU >= 10 unit, tapi margin <= 30% atau di bawah rata-rata
         avg_terjual = sum(i["total_terjual"] for i in all_items) / max(1, len(all_items))
         avg_margin = sum(i["margin_persen"] for i in all_items) / max(1, len(all_items))
 
@@ -152,30 +142,26 @@ class AnalysisService:
             "semua_produk": all_items
         }
 
-    def get_financial_analysis(self, user_id: int) -> Dict[str, Any]:
+    def get_financial_analysis(self, business_id: int) -> Dict[str, Any]:
         now = datetime.now()
-        products = self.repo.get_products(user_id)
+        products = self.repo.get_products(business_id)
         products_map = {p["id"]: p for p in products}
 
-        # Divide into current period (last 7 days) and previous period (prior 7 days)
         split_date = now - timedelta(days=7)
         start_prev_date = now - timedelta(days=14)
 
-        all_tx = self.repo.get_transactions(user_id)
-        all_exp = self.repo.get_expenses(user_id)
+        all_tx = self.repo.get_transactions(business_id)
+        all_exp = self.repo.get_expenses(business_id)
 
-        # Filter current period
         tx_current = [t for t in all_tx if t["tanggal"] >= split_date]
         exp_current = [e for e in all_exp if e["tanggal"] >= split_date.date()]
 
-        # Filter previous period
         tx_prev = [t for t in all_tx if start_prev_date <= t["tanggal"] < split_date]
         exp_prev = [e for e in all_exp if start_prev_date.date() <= e["tanggal"] < split_date.date()]
 
         m_current = calculate_financial_metrics(tx_current, products_map, exp_current)
         m_prev = calculate_financial_metrics(tx_prev, products_map, exp_prev)
 
-        # Calculate percentage changes safely
         def calc_pct_change(curr: Decimal, prev: Decimal) -> float:
             if prev == Decimal("0"):
                 return 100.0 if curr > Decimal("0") else 0.0

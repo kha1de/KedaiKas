@@ -1,0 +1,89 @@
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/deps.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/router.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/analysis.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/dashboard.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/expenses.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/products.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/reports.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/simulation.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/targets.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/api/routes/transactions.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/core/security.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/models/__init__.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/models/expense.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/models/product.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/models/target.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/models/transaction.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/models/user.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/repositories/base.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/repositories/mock_repository.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/repositories/sql_repository.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/schemas/user.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/analysis_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/auth_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/dashboard_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/expense_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/insight_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/product_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/report_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/simulation_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/target_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/app/services/transaction_service.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/tests/conftest.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/tests/test_auth.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/tests/test_products.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/tests/test_simulation.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/tests/test_sql_repository.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'backend/tests/test_transactions.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'database/postgresql_schema.sql', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'database/postgresql_seed.sql', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/dashboard/layout.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/app/login/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/services/auth.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/src/types/user.ts', LF will be replaced by CRLF the next time Git touches it
+ README.md                                   | 349 [32m+++++++++++++++++++[m[31m---------[m
+ backend/app/api/deps.py                     |  29 [32m++[m[31m-[m
+ backend/app/api/router.py                   |   4 [32m+[m
+ backend/app/api/routes/analysis.py          |  18 [32m+[m[31m-[m
+ backend/app/api/routes/dashboard.py         |   6 [32m+[m[31m-[m
+ backend/app/api/routes/expenses.py          |  18 [32m+[m[31m-[m
+ backend/app/api/routes/products.py          |  22 [32m+[m[31m-[m
+ backend/app/api/routes/reports.py           |   6 [32m+[m[31m-[m
+ backend/app/api/routes/simulation.py        |   6 [32m+[m[31m-[m
+ backend/app/api/routes/targets.py           |  18 [32m+[m[31m-[m
+ backend/app/api/routes/transactions.py      |  18 [32m+[m[31m-[m
+ backend/app/core/security.py                |  14 [32m+[m[31m-[m
+ backend/app/models/__init__.py              |   2 [32m+[m
+ backend/app/models/expense.py               |   5 [32m+[m[31m-[m
+ backend/app/models/product.py               |   5 [32m+[m[31m-[m
+ backend/app/models/target.py                |   5 [32m+[m[31m-[m
+ backend/app/models/transaction.py           |   7 [32m+[m[31m-[m
+ backend/app/models/user.py                  |  14 [32m+[m[31m-[m
+ backend/app/repositories/base.py            |  69 [32m++++[m[31m--[m
+ backend/app/repositories/mock_repository.py | 247 [32m++++++++++++++[m[31m------[m
+ backend/app/repositories/sql_repository.py  | 199 [32m+++++++++++[m[31m-----[m
+ backend/app/schemas/user.py                 |  13 [32m+[m[31m-[m
+ backend/app/services/analysis_service.py    |  32 [32m+[m[31m--[m
+ backend/app/services/auth_service.py        |  12 [32m+[m[31m-[m
+ backend/app/services/dashboard_service.py   |  10 [32m+[m[31m-[m
+ backend/app/services/expense_service.py     |  20 [32m+[m[31m-[m
+ backend/app/services/insight_service.py     |  14 [32m+[m[31m-[m
+ backend/app/services/product_service.py     |  20 [32m+[m[31m-[m
+ backend/app/services/report_service.py      |  11 [32m+[m[31m-[m
+ backend/app/services/simulation_service.py  |  14 [32m+[m[31m-[m
+ backend/app/services/target_service.py      |  27 [32m++[m[31m-[m
+ backend/app/services/transaction_service.py |  21 [32m+[m[31m-[m
+ backend/tests/conftest.py                   |   4 [32m+[m[31m-[m
+ backend/tests/test_auth.py                  |  21 [32m+[m[31m-[m
+ backend/tests/test_products.py              |   9 [32m+[m[31m-[m
+ backend/tests/test_simulation.py            |   2 [32m+[m[31m-[m
+ backend/tests/test_sql_repository.py        |  18 [32m+[m[31m-[m
+ backend/tests/test_transactions.py          |  33 [32m+[m[31m--[m
+ database/postgresql_schema.sql              |  68 [32m++++[m[31m--[m
+ database/postgresql_seed.sql                |  20 [32m+[m[31m-[m
+ frontend/src/app/dashboard/layout.tsx       | 145 [32m+++++++++[m[31m---[m
+ frontend/src/app/login/page.tsx             |  39 [32m+++[m[31m-[m
+ frontend/src/services/auth.ts               |  54 [32m++++[m[31m-[m
+ frontend/src/types/user.ts                  |  27 [32m+++[m
+ 44 files changed, 1162 insertions(+), 533 deletions(-)

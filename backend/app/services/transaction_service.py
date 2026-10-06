@@ -12,14 +12,14 @@ class TransactionService:
 
     def get_all(
         self, 
-        user_id: int, 
+        business_id: int, 
         start_date: Optional[datetime] = None, 
         end_date: Optional[datetime] = None
     ) -> List[Dict[str, Any]]:
-        return self.repo.get_transactions(user_id, start_date, end_date)
+        return self.repo.get_transactions(business_id, start_date, end_date)
 
-    def get_by_id(self, user_id: int, transaction_id: int) -> Dict[str, Any]:
-        tx = self.repo.get_transaction_by_id(user_id, transaction_id)
+    def get_by_id(self, business_id: int, transaction_id: int) -> Dict[str, Any]:
+        tx = self.repo.get_transaction_by_id(business_id, transaction_id)
         if not tx:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -27,7 +27,7 @@ class TransactionService:
             )
         return tx
 
-    def create(self, user_id: int, tx_in: TransactionCreate) -> Dict[str, Any]:
+    def create(self, business_id: int, user_id: int, tx_in: TransactionCreate) -> Dict[str, Any]:
         if not tx_in.items:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -38,11 +38,11 @@ class TransactionService:
         prepared_items = []
         total = Decimal("0")
 
-        # Fetch and validate all products for current user
-        user_products = {p["id"]: p for p in self.repo.get_products(user_id)}
+        # Fetch and validate all products for current business
+        business_products = {p["id"]: p for p in self.repo.get_products(business_id)}
 
         for it in tx_in.items:
-            product = user_products.get(it.product_id)
+            product = business_products.get(it.product_id)
             if not product:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -68,6 +68,7 @@ class TransactionService:
 
         total = round_currency(total)
         created_tx = self.repo.create_transaction(
+            business_id=business_id,
             user_id=user_id,
             tanggal=tanggal,
             total=total,
@@ -75,8 +76,8 @@ class TransactionService:
         )
         return created_tx
 
-    def delete(self, user_id: int, transaction_id: int) -> Dict[str, str]:
-        success = self.repo.delete_transaction(user_id, transaction_id)
+    def delete(self, business_id: int, transaction_id: int) -> Dict[str, str]:
+        success = self.repo.delete_transaction(business_id, transaction_id)
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

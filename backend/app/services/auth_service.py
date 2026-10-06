@@ -8,7 +8,7 @@ class AuthService:
     def __init__(self, repo: BaseRepository):
         self.repo = repo
 
-    def register(self, user_in: UserCreate) -> Dict[str, Any]:
+    def register(self, user_in: UserCreate, role: str = "kasir", id_usaha: int = 1) -> Dict[str, Any]:
         existing = self.repo.get_user_by_email(user_in.email)
         if existing:
             raise HTTPException(
@@ -19,7 +19,9 @@ class AuthService:
         user = self.repo.create_user(
             nama=user_in.nama,
             email=user_in.email,
-            password_hash=hashed_pwd
+            password_hash=hashed_pwd,
+            role=role,
+            id_usaha=id_usaha
         )
         return user
 
@@ -38,7 +40,11 @@ class AuthService:
         return user
 
     def create_token(self, user: Dict[str, Any]) -> str:
-        return create_access_token(subject=user["id"])
+        return create_access_token(
+            subject=user["id"],
+            role=user.get("role", "kasir"),
+            id_usaha=user.get("id_usaha", 1)
+        )
 
     def get_current_user(self, user_id: int) -> Dict[str, Any]:
         user = self.repo.get_user_by_id(user_id)

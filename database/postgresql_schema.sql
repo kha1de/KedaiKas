@@ -19,24 +19,43 @@
 BEGIN;
 
 -- ============================================================
+-- TABEL: businesses (Multi-User Single-Business Tenant)
+-- ============================================================
+CREATE TABLE "businesses" (
+    "id_usaha"    SERIAL          NOT NULL,
+    "nama_usaha"  VARCHAR(150)    NOT NULL,
+    "alamat"      TEXT            DEFAULT NULL,
+    "created_at"  TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT "businesses_pkey" PRIMARY KEY ("id_usaha")
+);
+
+-- ============================================================
 -- TABEL: users
 -- ============================================================
 CREATE TABLE "users" (
     "id_user"    SERIAL          NOT NULL,
+    "id_usaha"   INTEGER         DEFAULT NULL,
     "nama"       VARCHAR(100)    NOT NULL,
     "email"      VARCHAR(100)    NOT NULL,
     "pass"       VARCHAR(255)    NOT NULL,
+    "role"       VARCHAR(20)     NOT NULL DEFAULT 'kasir',
     "created_at" TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
 
     CONSTRAINT "users_pkey"         PRIMARY KEY ("id_user"),
-    CONSTRAINT "users_email_unique" UNIQUE ("email")
+    CONSTRAINT "users_email_unique" UNIQUE ("email"),
+    CONSTRAINT "users_fk_id_usaha"  FOREIGN KEY ("id_usaha")
+        REFERENCES "businesses" ("id_usaha") ON DELETE SET NULL
 );
+
+CREATE INDEX "idx_users_id_usaha" ON "users" ("id_usaha");
 
 -- ============================================================
 -- TABEL: products
 -- ============================================================
 CREATE TABLE "products" (
     "id_produk"   SERIAL          NOT NULL,
+    "id_usaha"    INTEGER         DEFAULT 1,
     "id_user"     INTEGER         DEFAULT NULL,
     "nama_produk" VARCHAR(150)    NOT NULL,
     "kategori"    VARCHAR(100)    DEFAULT NULL,
@@ -45,29 +64,36 @@ CREATE TABLE "products" (
     "satuan"      VARCHAR(30)     NOT NULL,
     "created_at"  TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT "products_pkey"   PRIMARY KEY ("id_produk"),
-    CONSTRAINT "products_ibfk_1" FOREIGN KEY ("id_user")
-        REFERENCES "users" ("id_user") ON DELETE CASCADE
+    CONSTRAINT "products_pkey"       PRIMARY KEY ("id_produk"),
+    CONSTRAINT "products_fk_usaha"   FOREIGN KEY ("id_usaha")
+        REFERENCES "businesses" ("id_usaha") ON DELETE CASCADE,
+    CONSTRAINT "products_ibfk_1"     FOREIGN KEY ("id_user")
+        REFERENCES "users" ("id_user") ON DELETE SET NULL
 );
 
-CREATE INDEX "idx_products_id_user" ON "products" ("id_user");
+CREATE INDEX "idx_products_id_usaha" ON "products" ("id_usaha");
+CREATE INDEX "idx_products_id_user"  ON "products" ("id_user");
 
 -- ============================================================
 -- TABEL: transactions
 -- ============================================================
 CREATE TABLE "transactions" (
     "id_transaksi" SERIAL          NOT NULL,
+    "id_usaha"     INTEGER         DEFAULT 1,
     "id_user"      INTEGER         DEFAULT NULL,
     "tanggal"      TIMESTAMP       NOT NULL,
     "total"        DECIMAL(12,2)   NOT NULL,
     "created_at"   TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT "transactions_pkey"   PRIMARY KEY ("id_transaksi"),
-    CONSTRAINT "transactions_ibfk_1" FOREIGN KEY ("id_user")
-        REFERENCES "users" ("id_user") ON DELETE CASCADE
+    CONSTRAINT "transactions_pkey"     PRIMARY KEY ("id_transaksi"),
+    CONSTRAINT "transactions_fk_usaha" FOREIGN KEY ("id_usaha")
+        REFERENCES "businesses" ("id_usaha") ON DELETE CASCADE,
+    CONSTRAINT "transactions_ibfk_1"   FOREIGN KEY ("id_user")
+        REFERENCES "users" ("id_user") ON DELETE SET NULL
 );
 
-CREATE INDEX "idx_transactions_id_user" ON "transactions" ("id_user");
+CREATE INDEX "idx_transactions_id_usaha" ON "transactions" ("id_usaha");
+CREATE INDEX "idx_transactions_id_user"  ON "transactions" ("id_user");
 
 -- ============================================================
 -- TABEL: transaction_details
@@ -95,6 +121,7 @@ CREATE INDEX "idx_td_id_produk"    ON "transaction_details" ("id_produk");
 -- ============================================================
 CREATE TABLE "expenses" (
     "id_expenses" SERIAL          NOT NULL,
+    "id_usaha"    INTEGER         DEFAULT 1,
     "id_user"     INTEGER         DEFAULT NULL,
     "kategori"    VARCHAR(100)    NOT NULL,
     "nominal"     DECIMAL(12,2)   NOT NULL,
@@ -102,30 +129,37 @@ CREATE TABLE "expenses" (
     "keterangan"  TEXT            DEFAULT NULL,
     "created_at"  TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT "expenses_pkey"   PRIMARY KEY ("id_expenses"),
-    CONSTRAINT "expenses_ibfk_1" FOREIGN KEY ("id_user")
-        REFERENCES "users" ("id_user") ON DELETE CASCADE
+    CONSTRAINT "expenses_pkey"     PRIMARY KEY ("id_expenses"),
+    CONSTRAINT "expenses_fk_usaha" FOREIGN KEY ("id_usaha")
+        REFERENCES "businesses" ("id_usaha") ON DELETE CASCADE,
+    CONSTRAINT "expenses_ibfk_1"   FOREIGN KEY ("id_user")
+        REFERENCES "users" ("id_user") ON DELETE SET NULL
 );
 
-CREATE INDEX "idx_expenses_id_user" ON "expenses" ("id_user");
+CREATE INDEX "idx_expenses_id_usaha" ON "expenses" ("id_usaha");
+CREATE INDEX "idx_expenses_id_user"  ON "expenses" ("id_user");
 
 -- ============================================================
 -- TABEL: targets
 -- ============================================================
 CREATE TABLE "targets" (
     "id_target"       SERIAL          NOT NULL,
+    "id_usaha"        INTEGER         DEFAULT 1,
     "id_user"         INTEGER         DEFAULT NULL,
     "target_laba"     DECIMAL(12,2)   NOT NULL,
     "periode_mulai"   DATE            NOT NULL,
     "periode_selesai" DATE            NOT NULL,
     "created_at"      TIMESTAMPTZ     NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT "targets_pkey"   PRIMARY KEY ("id_target"),
-    CONSTRAINT "targets_ibfk_1" FOREIGN KEY ("id_user")
-        REFERENCES "users" ("id_user") ON DELETE CASCADE
+    CONSTRAINT "targets_pkey"     PRIMARY KEY ("id_target"),
+    CONSTRAINT "targets_fk_usaha" FOREIGN KEY ("id_usaha")
+        REFERENCES "businesses" ("id_usaha") ON DELETE CASCADE,
+    CONSTRAINT "targets_ibfk_1"   FOREIGN KEY ("id_user")
+        REFERENCES "users" ("id_user") ON DELETE SET NULL
 );
 
-CREATE INDEX "idx_targets_id_user" ON "targets" ("id_user");
+CREATE INDEX "idx_targets_id_usaha" ON "targets" ("id_usaha");
+CREATE INDEX "idx_targets_id_user"  ON "targets" ("id_user");
 
 -- ============================================================
 -- TABEL: price_references

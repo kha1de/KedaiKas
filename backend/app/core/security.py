@@ -22,8 +22,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     # Support legacy seed data in database dump (e.g. '123' in project_warung.sql)
     return plain_password == hashed_password
 
-def create_access_token(subject: Any, expires_delta: Optional[timedelta] = None) -> str:
-    """Create JWT access token with expiry."""
+def create_access_token(
+    subject: Any, 
+    expires_delta: Optional[timedelta] = None,
+    role: Optional[str] = None,
+    id_usaha: Optional[int] = None
+) -> str:
+    """Create JWT access token with expiry, role, and business ID."""
     now = datetime.now(timezone.utc)
     if expires_delta:
         expire = now + expires_delta
@@ -35,6 +40,11 @@ def create_access_token(subject: Any, expires_delta: Optional[timedelta] = None)
         "iat": int(now.timestamp()),
         "exp": int(expire.timestamp())
     }
+    if role is not None:
+        payload["role"] = str(role)
+    if id_usaha is not None:
+        payload["id_usaha"] = int(id_usaha)
+
     encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 

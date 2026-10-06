@@ -4,6 +4,7 @@ from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from app.repositories.base import BaseRepository
+from app.models.business import Business
 from app.models.user import User
 from app.models.product import Product
 from app.models.transaction import Transaction
@@ -14,8 +15,8 @@ from app.models.price_reference import PriceReference
 
 class SqlRepository(BaseRepository):
     """
-    SQLAlchemy repository implementation for MySQL/MariaDB.
-    Follows identical interface with MockRepository.
+    SQLAlchemy repository implementation for PostgreSQL.
+    Implements Multi-User Single-Business data scoping and RBAC support.
     """
     def __init__(self, db_session: Session):
         self.db = db_session
@@ -27,9 +28,11 @@ class SqlRepository(BaseRepository):
             return None
         return {
             "id": user.id,
+            "id_usaha": user.business_id if user.business_id is not None else 1,
             "nama": user.nama,
             "email": user.email,
             "password": user.password,
+            "role": user.role if user.role else "kasir",
             "created_at": user.created_at
         }
 
@@ -39,31 +42,103 @@ class SqlRepository(BaseRepository):
             return None
         return {
             "id": user.id,
+            "id_usaha": user.business_id if user.business_id is not None else 1,
             "nama": user.nama,
             "email": user.email,
             "password": user.password,
+            "role": user.role if user.role else "kasir",
             "created_at": user.created_at
         }
 
-    def create_user(self, nama: str, email: str, password_hash: str) -> Dict[str, Any]:
-        user = User(nama=nama, email=email, password=password_hash)
+    def get_users_by_business(self, business_id: int) -> List[Dict[str, Any]]:
+        users = self.db.query(User).filter(User.business_id == business_id).order_by(User.id).all()
+        return [
+            {
+                "id": u.id,
+                "id_usaha": u.business_id,
+                "nama": u.nama,
+                "email": u.email,
+                "role": u.role,
+                "created_at": u.created_at
+            }
+            for u in users
+        ]
+
+    def create_user(self, nama: str, email: str, password_hash: str, role: str = "kasir", id_usaha: int = 1) -> Dict[str, Any]:
+        user = User(nama=nama, email=email, password=password_hash, role=role, business_id=id_usaha)
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
         return {
             "id": user.id,
+            "id_usaha": user.business_id,
             "nama": user.nama,
             "email": user.email,
             "password": user.password,
+            "role": user.role,
             "created_at": user.created_at
         }
 
-    # --- PRODUCTS ---
-    def get_products(self, user_id: int) -> List[Dict[str, Any]]:
-        products = self.db.query(Product).filter(Product.user_id == user_id).all()
+    def update_user_role(self, user_id: int, role: str) -> Optional[Dict[str, Any]]:
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        user.role = role
+        self.db.commit()
+        self.db.refresh(user)
+        return {
+            "id": user.id,
+            "id_usaha": user.business_id,
+            "nama": user.nama,
+            "email": user.email,
+            "role": user.role,
+            "created_at": user.created_at
+        }
+
+    def delete_user(self, user_id: int) -> bool:
+        user = self.db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return False
+        self.db.delete(user)
+        self.db.commit()
+        return True
+
+    # --- BUSINESSES ---
+    def get_business_by_id(self, business_id: int) -> Optional[Dict[str, Any]]:
+        b = self.db.query(Business).filter(Business.id == business_id).first()
+        if not b:
+            return None
+        return {
+            "id": b.id,
+            "nama_usaha": b.nama_usaha,
+            "alamat": b.alamat,
+            "created_at": b.created_at
+        }
+
+    def update_business(self, business_id: int, data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        b = self.db.query(Business).filter(Business.id == business_id).first()
+        if not b:
+            return None
+        if "nama_usaha" in data and data["nama_usaha"]:
+            b.nama_usaha = data["nama_usaha"]
+        if "alamat" in data:
+            b.alamat = data["alamat"]
+        self.db.commit()
+        self.db.refresh(b)
+        return {
+            "id": b.id,
+            "nama_usaha": b.nama_usaha,
+            "alamat": b.alamat,
+            "created_at": b.created_at
+        }
+
+    # --- PRODUCTS (Scoped by business_id) ---
+    def get_products(self, business_id: int) -> List[Dict[str, Any]]:
+        products = self.db.query(Product).filter(Product.business_id == business_id).order_by(Product.id).all()
         return [
             {
                 "id": p.id,
+                "id_usaha": p.business_id,
                 "user_id": p.user_id,
                 "nama_produk": p.nama_produk,
                 "kategori": p.kategori,
@@ -75,12 +150,13 @@ class SqlRepository(BaseRepository):
             for p in products
         ]
 
-    def get_product_by_id(self, user_id: int, product_id: int) -> Optional[Dict[str, Any]]:
-        p = self.db.query(Product).filter(Product.id == product_id, Product.user_id == user_id).first()
+    def get_product_by_id(self, business_id: int, product_id: int) -> Optional[Dict[str, Any]]:
+        p = self.db.query(Product).filter(Product.id == product_id, Product.business_id == business_id).first()
         if not p:
             return None
         return {
             "id": p.id,
+            "id_usaha": p.business_id,
             "user_id": p.user_id,
             "nama_produk": p.nama_produk,
             "kategori": p.kategori,
@@ -90,8 +166,9 @@ class SqlRepository(BaseRepository):
             "created_at": p.created_at
         }
 
-    def create_product(self, user_id: int, product_data: Dict[str, Any]) -> Dict[str, Any]:
+    def create_product(self, business_id: int, product_data: Dict[str, Any], user_id: Optional[int] = None) -> Dict[str, Any]:
         p = Product(
+            business_id=business_id,
             user_id=user_id,
             nama_produk=product_data["nama_produk"],
             kategori=product_data.get("kategori"),
@@ -104,6 +181,7 @@ class SqlRepository(BaseRepository):
         self.db.refresh(p)
         return {
             "id": p.id,
+            "id_usaha": p.business_id,
             "user_id": p.user_id,
             "nama_produk": p.nama_produk,
             "kategori": p.kategori,
@@ -113,8 +191,8 @@ class SqlRepository(BaseRepository):
             "created_at": p.created_at
         }
 
-    def update_product(self, user_id: int, product_id: int, product_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        p = self.db.query(Product).filter(Product.id == product_id, Product.user_id == user_id).first()
+    def update_product(self, business_id: int, product_id: int, product_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        p = self.db.query(Product).filter(Product.id == product_id, Product.business_id == business_id).first()
         if not p:
             return None
         if "nama_produk" in product_data and product_data["nama_produk"] is not None:
@@ -131,6 +209,7 @@ class SqlRepository(BaseRepository):
         self.db.refresh(p)
         return {
             "id": p.id,
+            "id_usaha": p.business_id,
             "user_id": p.user_id,
             "nama_produk": p.nama_produk,
             "kategori": p.kategori,
@@ -140,17 +219,17 @@ class SqlRepository(BaseRepository):
             "created_at": p.created_at
         }
 
-    def delete_product(self, user_id: int, product_id: int) -> bool:
-        p = self.db.query(Product).filter(Product.id == product_id, Product.user_id == user_id).first()
+    def delete_product(self, business_id: int, product_id: int) -> bool:
+        p = self.db.query(Product).filter(Product.id == product_id, Product.business_id == business_id).first()
         if not p:
             return False
         self.db.delete(p)
         self.db.commit()
         return True
 
-    # --- TRANSACTIONS ---
-    def get_transactions(self, user_id: int, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> List[Dict[str, Any]]:
-        q = self.db.query(Transaction).filter(Transaction.user_id == user_id)
+    # --- TRANSACTIONS (Scoped by business_id, cashier recorded in user_id) ---
+    def get_transactions(self, business_id: int, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> List[Dict[str, Any]]:
+        q = self.db.query(Transaction).filter(Transaction.business_id == business_id)
         if start_date:
             q = q.filter(Transaction.tanggal >= start_date)
         if end_date:
@@ -173,7 +252,9 @@ class SqlRepository(BaseRepository):
             ]
             result.append({
                 "id": t.id,
+                "id_usaha": t.business_id,
                 "user_id": t.user_id,
+                "nama_kasir": t.user.nama if t.user else "Kasir",
                 "tanggal": t.tanggal,
                 "total": Decimal(str(t.total)),
                 "created_at": t.created_at,
@@ -181,8 +262,8 @@ class SqlRepository(BaseRepository):
             })
         return result
 
-    def get_transaction_by_id(self, user_id: int, transaction_id: int) -> Optional[Dict[str, Any]]:
-        t = self.db.query(Transaction).filter(Transaction.id == transaction_id, Transaction.user_id == user_id).first()
+    def get_transaction_by_id(self, business_id: int, transaction_id: int) -> Optional[Dict[str, Any]]:
+        t = self.db.query(Transaction).filter(Transaction.id == transaction_id, Transaction.business_id == business_id).first()
         if not t:
             return None
         items = [
@@ -199,15 +280,17 @@ class SqlRepository(BaseRepository):
         ]
         return {
             "id": t.id,
+            "id_usaha": t.business_id,
             "user_id": t.user_id,
+            "nama_kasir": t.user.nama if t.user else "Kasir",
             "tanggal": t.tanggal,
             "total": Decimal(str(t.total)),
             "created_at": t.created_at,
             "items": items
         }
 
-    def create_transaction(self, user_id: int, tanggal: datetime, total: Decimal, items: List[Dict[str, Any]]) -> Dict[str, Any]:
-        tx = Transaction(user_id=user_id, tanggal=tanggal, total=total)
+    def create_transaction(self, business_id: int, user_id: int, tanggal: datetime, total: Decimal, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+        tx = Transaction(business_id=business_id, user_id=user_id, tanggal=tanggal, total=total)
         self.db.add(tx)
         self.db.flush()
 
@@ -239,24 +322,26 @@ class SqlRepository(BaseRepository):
 
         return {
             "id": tx.id,
+            "id_usaha": tx.business_id,
             "user_id": tx.user_id,
+            "nama_kasir": tx.user.nama if tx.user else "Kasir",
             "tanggal": tx.tanggal,
             "total": Decimal(str(tx.total)),
             "created_at": tx.created_at,
             "items": created_items
         }
 
-    def delete_transaction(self, user_id: int, transaction_id: int) -> bool:
-        t = self.db.query(Transaction).filter(Transaction.id == transaction_id, Transaction.user_id == user_id).first()
+    def delete_transaction(self, business_id: int, transaction_id: int) -> bool:
+        t = self.db.query(Transaction).filter(Transaction.id == transaction_id, Transaction.business_id == business_id).first()
         if not t:
             return False
         self.db.delete(t)
         self.db.commit()
         return True
 
-    # --- EXPENSES ---
-    def get_expenses(self, user_id: int, start_date: Optional[date] = None, end_date: Optional[date] = None) -> List[Dict[str, Any]]:
-        q = self.db.query(Expense).filter(Expense.user_id == user_id)
+    # --- EXPENSES (Scoped by business_id) ---
+    def get_expenses(self, business_id: int, start_date: Optional[date] = None, end_date: Optional[date] = None) -> List[Dict[str, Any]]:
+        q = self.db.query(Expense).filter(Expense.business_id == business_id)
         if start_date:
             q = q.filter(Expense.tanggal >= start_date)
         if end_date:
@@ -265,6 +350,7 @@ class SqlRepository(BaseRepository):
         return [
             {
                 "id": e.id,
+                "id_usaha": e.business_id,
                 "user_id": e.user_id,
                 "kategori": e.kategori,
                 "nominal": Decimal(str(e.nominal)),
@@ -275,12 +361,13 @@ class SqlRepository(BaseRepository):
             for e in expenses
         ]
 
-    def get_expense_by_id(self, user_id: int, expense_id: int) -> Optional[Dict[str, Any]]:
-        e = self.db.query(Expense).filter(Expense.id == expense_id, Expense.user_id == user_id).first()
+    def get_expense_by_id(self, business_id: int, expense_id: int) -> Optional[Dict[str, Any]]:
+        e = self.db.query(Expense).filter(Expense.id == expense_id, Expense.business_id == business_id).first()
         if not e:
             return None
         return {
             "id": e.id,
+            "id_usaha": e.business_id,
             "user_id": e.user_id,
             "kategori": e.kategori,
             "nominal": Decimal(str(e.nominal)),
@@ -289,8 +376,9 @@ class SqlRepository(BaseRepository):
             "created_at": e.created_at
         }
 
-    def create_expense(self, user_id: int, expense_data: Dict[str, Any]) -> Dict[str, Any]:
+    def create_expense(self, business_id: int, expense_data: Dict[str, Any], user_id: Optional[int] = None) -> Dict[str, Any]:
         e = Expense(
+            business_id=business_id,
             user_id=user_id,
             kategori=expense_data["kategori"],
             nominal=expense_data["nominal"],
@@ -302,6 +390,7 @@ class SqlRepository(BaseRepository):
         self.db.refresh(e)
         return {
             "id": e.id,
+            "id_usaha": e.business_id,
             "user_id": e.user_id,
             "kategori": e.kategori,
             "nominal": Decimal(str(e.nominal)),
@@ -310,8 +399,8 @@ class SqlRepository(BaseRepository):
             "created_at": e.created_at
         }
 
-    def update_expense(self, user_id: int, expense_id: int, expense_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        e = self.db.query(Expense).filter(Expense.id == expense_id, Expense.user_id == user_id).first()
+    def update_expense(self, business_id: int, expense_id: int, expense_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        e = self.db.query(Expense).filter(Expense.id == expense_id, Expense.business_id == business_id).first()
         if not e:
             return None
         if "kategori" in expense_data and expense_data["kategori"] is not None:
@@ -326,6 +415,7 @@ class SqlRepository(BaseRepository):
         self.db.refresh(e)
         return {
             "id": e.id,
+            "id_usaha": e.business_id,
             "user_id": e.user_id,
             "kategori": e.kategori,
             "nominal": Decimal(str(e.nominal)),
@@ -334,20 +424,21 @@ class SqlRepository(BaseRepository):
             "created_at": e.created_at
         }
 
-    def delete_expense(self, user_id: int, expense_id: int) -> bool:
-        e = self.db.query(Expense).filter(Expense.id == expense_id, Expense.user_id == user_id).first()
+    def delete_expense(self, business_id: int, expense_id: int) -> bool:
+        e = self.db.query(Expense).filter(Expense.id == expense_id, Expense.business_id == business_id).first()
         if not e:
             return False
         self.db.delete(e)
         self.db.commit()
         return True
 
-    # --- TARGETS ---
-    def get_targets(self, user_id: int) -> List[Dict[str, Any]]:
-        targets = self.db.query(Target).filter(Target.user_id == user_id).order_by(desc(Target.created_at)).all()
+    # --- TARGETS (Scoped by business_id) ---
+    def get_targets(self, business_id: int) -> List[Dict[str, Any]]:
+        targets = self.db.query(Target).filter(Target.business_id == business_id).order_by(desc(Target.created_at)).all()
         return [
             {
                 "id": t.id,
+                "id_usaha": t.business_id,
                 "user_id": t.user_id,
                 "target_laba": Decimal(str(t.target_laba)),
                 "periode_mulai": t.periode_mulai,
@@ -357,12 +448,13 @@ class SqlRepository(BaseRepository):
             for t in targets
         ]
 
-    def get_latest_target(self, user_id: int) -> Optional[Dict[str, Any]]:
-        t = self.db.query(Target).filter(Target.user_id == user_id).order_by(desc(Target.created_at)).first()
+    def get_latest_target(self, business_id: int) -> Optional[Dict[str, Any]]:
+        t = self.db.query(Target).filter(Target.business_id == business_id).order_by(desc(Target.created_at)).first()
         if not t:
             return None
         return {
             "id": t.id,
+            "id_usaha": t.business_id,
             "user_id": t.user_id,
             "target_laba": Decimal(str(t.target_laba)),
             "periode_mulai": t.periode_mulai,
@@ -370,8 +462,9 @@ class SqlRepository(BaseRepository):
             "created_at": t.created_at
         }
 
-    def create_target(self, user_id: int, target_laba: Decimal, periode_mulai: date, periode_selesai: date) -> Dict[str, Any]:
+    def create_target(self, business_id: int, target_laba: Decimal, periode_mulai: date, periode_selesai: date, user_id: Optional[int] = None) -> Dict[str, Any]:
         t = Target(
+            business_id=business_id,
             user_id=user_id,
             target_laba=target_laba,
             periode_mulai=periode_mulai,
@@ -382,6 +475,7 @@ class SqlRepository(BaseRepository):
         self.db.refresh(t)
         return {
             "id": t.id,
+            "id_usaha": t.business_id,
             "user_id": t.user_id,
             "target_laba": Decimal(str(t.target_laba)),
             "periode_mulai": t.periode_mulai,
@@ -389,8 +483,8 @@ class SqlRepository(BaseRepository):
             "created_at": t.created_at
         }
 
-    def update_target(self, user_id: int, target_id: int, target_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        t = self.db.query(Target).filter(Target.id == target_id, Target.user_id == user_id).first()
+    def update_target(self, business_id: int, target_id: int, target_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        t = self.db.query(Target).filter(Target.id == target_id, Target.business_id == business_id).first()
         if not t:
             return None
         if "target_laba" in target_data and target_data["target_laba"] is not None:
@@ -403,6 +497,7 @@ class SqlRepository(BaseRepository):
         self.db.refresh(t)
         return {
             "id": t.id,
+            "id_usaha": t.business_id,
             "user_id": t.user_id,
             "target_laba": Decimal(str(t.target_laba)),
             "periode_mulai": t.periode_mulai,
@@ -428,18 +523,16 @@ class SqlRepository(BaseRepository):
         ]
 
     def get_price_reference_by_name(self, nama_produk: str) -> Optional[Dict[str, Any]]:
-        ref = self.db.query(PriceReference).filter(
-            PriceReference.nama_produk.ilike(f"%{nama_produk}%")
-        ).first()
-        if not ref:
+        r = self.db.query(PriceReference).filter(PriceReference.nama_produk.ilike(nama_produk)).first()
+        if not r:
             return None
         return {
-            "id": ref.id,
-            "nama_produk": ref.nama_produk,
-            "kategori": ref.kategori,
-            "harga_min": Decimal(str(ref.harga_min)),
-            "harga_max": Decimal(str(ref.harga_max)),
-            "satuan": ref.satuan,
-            "sumber": ref.sumber,
-            "updated_at": ref.updated_at
+            "id": r.id,
+            "nama_produk": r.nama_produk,
+            "kategori": r.kategori,
+            "harga_min": Decimal(str(r.harga_min)),
+            "harga_max": Decimal(str(r.harga_max)),
+            "satuan": r.satuan,
+            "sumber": r.sumber,
+            "updated_at": r.updated_at
         }

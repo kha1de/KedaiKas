@@ -15,17 +15,17 @@ class SimulationService:
         self.repo = repo
         self.analysis_service = AnalysisService(repo)
 
-    def run_simulation(self, user_id: int, sim_req: SimulationRequest) -> SimulationResponse:
-        # 1. Ambil data kondisi saat ini
-        products = self.repo.get_products(user_id)
+    def run_simulation(self, business_id: int, sim_req: SimulationRequest) -> SimulationResponse:
+        # 1. Ambil data kondisi saat ini untuk usaha
+        products = self.repo.get_products(business_id)
         products_map = {p["id"]: p for p in products}
 
         # Hitung agregat penjualan produk historis (volume dasar)
-        prod_analysis = self.analysis_service.get_product_analysis(user_id)
+        prod_analysis = self.analysis_service.get_product_analysis(business_id)
         current_prod_perf = {item["product_id"]: item for item in prod_analysis["semua_produk"]}
 
         # Ambil total pengeluaran saat ini
-        expenses = self.repo.get_expenses(user_id)
+        expenses = self.repo.get_expenses(business_id)
         current_expenses = sum(Decimal(str(e["nominal"])) for e in expenses) if expenses else Decimal("0")
 
         # Metrik saat ini
@@ -100,13 +100,13 @@ class SimulationService:
         )
 
         # 4. Target Comparison
-        latest_target = self.repo.get_latest_target(user_id)
+        latest_target = self.repo.get_latest_target(business_id)
         if sim_req.target_laba_simulasi is not None:
             eff_target = sim_req.target_laba_simulasi
         elif latest_target:
             eff_target = latest_target["target_laba"]
         else:
-            eff_target = Decimal("3000000.00") # Default benchmark
+            eff_target = Decimal("3000000.00")
 
         gap_saat_ini = max(Decimal("0"), eff_target - curr_laba_bersih)
         gap_proyeksi = max(Decimal("0"), eff_target - sim_laba_bersih)

@@ -12,23 +12,21 @@ class ReportService:
 
     def generate_report(
         self, 
-        user_id: int, 
+        business_id: int, 
         start_date: Optional[date] = None, 
         end_date: Optional[date] = None
     ) -> ReportResponse:
-        products = self.repo.get_products(user_id)
+        products = self.repo.get_products(business_id)
         products_map = {p["id"]: p for p in products}
 
-        # Convert date to datetime bounds
         dt_start = datetime.combine(start_date, datetime.min.time()) if start_date else None
         dt_end = datetime.combine(end_date, datetime.max.time()) if end_date else None
 
-        transactions = self.repo.get_transactions(user_id, dt_start, dt_end)
-        expenses = self.repo.get_expenses(user_id, start_date, end_date)
+        transactions = self.repo.get_transactions(business_id, dt_start, dt_end)
+        expenses = self.repo.get_expenses(business_id, start_date, end_date)
 
         metrics = calculate_financial_metrics(transactions, products_map, expenses)
 
-        # Aggregate product sales in report period
         prod_perf: Dict[int, Dict[str, Any]] = {}
         for p in products:
             prod_perf[p["id"]] = {
@@ -68,7 +66,6 @@ class ReportService:
                 item["margin_persen"] = round(m, 2)
             product_summary.append(ProductPerformanceItem(**item))
 
-        # Sort summary by omzet desc
         product_summary.sort(key=lambda x: x.total_omzet, reverse=True)
 
         return ReportResponse(
