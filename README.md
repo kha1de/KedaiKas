@@ -341,9 +341,10 @@ graph TD
 - **Engine Utama**: PostgreSQL (versi 14 hingga 18 didukung)
 - **Nama Basis Data**: `project_warung`
 - **Aset Skrip**:
-  - `database/postgresql_schema.sql` (DDL skema tabel, indeks, dan trigger)
-  - `database/postgresql_seed.sql` (DML data awal pengujian)
-  - `database/seed_ahmad_demo.sql` (DML data historis demo lengkap)
+  - `database/postgresql_schema.sql` (DDL skema 8 tabel relasional, indeks, dan trigger)
+  - `database/postgresql_seed.sql` (DML profil usaha `Kedai Berkah UMKM` dan 3 akun demo RBAC)
+  - `database/seed_ahmad_demo.sql` (DML dataset transaksi & operasional historis demo Juli–September 2026 atas nama kasir untuk usaha bersama)
+  - `database/migration_rbac_multiusers.sql` (Skrip migrasi non-destruktif & sinkronisasi idempoten arsitektur Multi-User Single-Business RBAC)
   - *Catatan Aset Warisan*: Berkas `database/project_warung.sql`, `database/schema.sql`, dan `database/seed.sql` merupakan berkas referensi/fallback dari lingkungan MariaDB/MySQL terdahulu. Sistem utama saat ini diarahkan dan diuji pada PostgreSQL.
 
 ---
@@ -457,29 +458,32 @@ erDiagram
 
 ## Dataset Demo Pengujian
 
-Untuk mempermudah eksplorasi lokal dan pengujian modul analitik tanpa input manual berulang, repositori menyediakan berkas migrasi dan dataset terintegrasi:
+Untuk mempermudah eksplorasi lokal dan pengujian modul analitik tanpa input manual berulang, repositori menyediakan berkas skrip database terintegrasi:
 
-### 1. Migrasi Multi-User RBAC (`database/migration_rbac_multiusers.sql`)
-- Skrip migrasi **non-destruktif (zero data loss)** yang menyematkan tabel `businesses`, menambahkan kolom `id_usaha` & `role`, memetakan seluruh relasi foreign key, serta menetapkan hak akses peran demo secara aman.
+### 1. Skema Relasional (`database/postgresql_schema.sql`)
+- Skema DDL 8 tabel relasional yang mendukung arsitektur **Multi-User Single-Business**, mencakup profil usaha (`businesses`), asosiasi staf (`users.id_usaha`, `users.role`), katalog produk, transaksi kasir, rincian nota, beban operasional, target laba, dan benchmark harga pasar.
 
-### 2. Base Seed (`database/postgresql_seed.sql`)
-- 1 entitas usaha utama (`Kedai Berkah UMKM`, `id_usaha = 1`)
-- 3 akun demo terhubung ke usaha utama:
+### 2. Base Seed Data (`database/postgresql_seed.sql`)
+- 1 entitas usaha bersama (`Kedai Berkah UMKM`, `id_usaha = 1`).
+- 3 akun demo resmi yang bernaung di bawah usaha bersama:
   - **Darin Hilmi Azzahra** (`role = 'owner'`, `dar.hilmi@gmail.com`)
   - **Daffa Berlliano** (`role = 'manager'`, `daf.berlliano@gmail.com`)
   - **Ahmad Khairul Fatih** (`role = 'kasir'`, `ah.khairul@gmail.com`)
-- 4 produk dasar, 12 transaksi penjualan, 22 rincian item transaksi, 4 beban operasional, 2 target laba, dan 11 referensi harga pasar.
+- Master data awal: 4 produk dasar, 12 transaksi penjualan, 22 rincian item transaksi, 4 beban operasional, 2 target laba, dan 11 referensi harga pasar.
 
 ### 3. Enriched Historical Demo Dataset (`database/seed_ahmad_demo.sql`)
-Dataset historis komprehensif yang telah dimigrasikan ke dalam lingkup `id_usaha = 1` (*Kedai Berkah UMKM*):
+Dataset historis komprehensif toko bersama yang direkam atas nama kasir Ahmad Khairul Fatih dalam lingkup `id_usaha = 1` (*Kedai Berkah UMKM*):
 - **35 produk aktif** di bawah usaha utama mencakup 6 kategori UMKM (*Makanan Ringan*, *Makanan*, *Minuman*, *Sembako*, *Rumah Tangga*, dan *Perlengkapan*).
-- **58 transaksi penjualan historis** yang terdistribusi realistis sepanjang rentang waktu **Juli, Agustus, hingga September 2026** (direkam dengan catatan ID kasir).
+- **58 transaksi penjualan historis** yang terdistribusi realistis sepanjang rentang waktu **Juli, Agustus, hingga September 2026** (direkam dengan catatan ID kasir `id_user = 1`).
 - **250+ baris item detail transaksi** yang mencerminkan basket size pelanggan warung sesungguhnya.
 - **24 catatan pengeluaran operasional** (listrik toko, sewa kios, bensin transportasi, kemasan belanja, galon air, dsb.) sepanjang Juli–September 2026.
 - **4 target laba periodik bulanan**.
 - *Karakteristik Skrip*: Bersifat **idempoten** (`ON CONFLICT DO NOTHING`) dengan sinkronisasi sequence serial otomatis (`setval`).
 
-Dataset ini bertujuan agar grafik telemetri Dashboard (Harian, Mingguan, Bulanan), mesin insight, komparasi finansial 7 hari, dan simulator CobaDulu dapat langsung didemonstrasikan dengan data yang hidup dan masuk akal.
+Dataset ini bertujuan agar grafik telemetri Dashboard (Harian, Mingguan, Bulanan), mesin insight, komparasi finansial 7 hari, dan simulator CobaDulu dapat langsung didemonstrasikan dengan data yang hidup dan masuk akal begitu aplikasi dijalankan.
+
+### 4. Skrip Migrasi Multi-User RBAC (`database/migration_rbac_multiusers.sql`)
+- Skrip migrasi **non-destruktif (zero data loss)** dan **idempoten** untuk memperbarui database versi lama ke arsitektur RBAC multi-user, menyematkan tabel `businesses`, mengisi `id_usaha = 1`, serta memastikan ketiga akun demo memiliki role yang tepat tanpa menghapus riwayat transaksi yang sudah ada.
 
 ---
 
@@ -542,11 +546,11 @@ KedaiKas/
 │   ├── pytest.ini                      # Konfigurasi eksekusi pengujian Pytest
 │   └── .env.example                    # Template variabel lingkungan backend
 │
-├── database/                           # Skrip skema DDL dan data pengujian DML
-│   ├── migration_rbac_multiusers.sql   # Skrip migrasi non-destruktif Multi-User Single-Business RBAC
-│   ├── postgresql_schema.sql           # Skema tabel, foreign key, dan trigger PostgreSQL
-│   ├── postgresql_seed.sql             # Data awal dasar (base seed) dengan profil usaha & 3 akun demo
-│   ├── seed_ahmad_demo.sql             # Dataset pengujian demo historis (35 produk, transaksi Juli–Sept 2026)
+├── database/                           # Skrip skema DDL, seed data, dan migrasi PostgreSQL
+│   ├── postgresql_schema.sql           # Skema tabel DDL, foreign key, trigger, dan indeks PostgreSQL
+│   ├── postgresql_seed.sql             # Data awal dasar (profil usaha bersama & 3 akun demo RBAC)
+│   ├── seed_ahmad_demo.sql             # Dataset historis demo toko bersama (35 produk, transaksi kasir Juli–Sept 2026)
+│   ├── migration_rbac_multiusers.sql   # Skrip migrasi non-destruktif & sinkronisasi idempoten RBAC
 │   ├── project_warung.sql              # Dump referensi/warisan MariaDB terdahulu
 │   ├── schema.sql                      # Skema kompatibilitas MySQL terdahulu
 │   └── seed.sql                        # Seed data kompatibilitas MySQL terdahulu
@@ -582,26 +586,78 @@ cd KedaiKas
 
 ---
 
+<a id="penyiapan-database-postgresql"></a>
 ### Langkah 2: Setup Database PostgreSQL
 
-1. Pastikan server PostgreSQL aktif di komputer Anda.
-2. Buat database baru bernama `project_warung`:
+Arsitektur database KedaiKas menggunakan model **Multi-User Single-Business**:
+- **1 Basis Data**: `project_warung`
+- **1 Usaha Bersama**: `Kedai Berkah UMKM` (`id_usaha = 1`)
+- **3 Akun Demo Resmi**:
+  1. **Darin Hilmi Azzahra** (`dar.hilmi@gmail.com` / password: `123`) → **Owner**
+     - *Kewenangan*: Akses menyeluruh (kelola staf/pengguna, pengaturan profil usaha, hapus katalog/transaksi/target, audit finansial lengkap).
+  2. **Daffa Berlliano** (`daf.berlliano@gmail.com` / password: `123`) → **Manager**
+     - *Kewenangan*: Pengelolaan operasional toko (dashboard metrik, katalog produk, pencatatan transaksi, analisis benchmark pasar, simulator CobaDulu, laporan berkala).
+  3. **Ahmad Khairul Fatih** (`ah.khairul@gmail.com` / password: `123`) → **Kasir**
+     - *Kewenangan*: Operasional penjualan harian (pencatatan transaksi kasir/POS, riwayat nota transaksi toko bersama, katalog harga).
+
+Seluruh data usaha (katalog produk, riwayat transaksi kasir, beban pengeluaran, target laba) berada dalam satu cakupan toko bersama (**`id_usaha = 1`**). Ketika Kasir mencatat penjualan, data tersebut langsung otomatis teragregasi dan dapat dipantau di dashboard oleh Manager dan Owner.
+
+---
+
+#### Panduan A: Instalasi Baru (Fresh Clone Setup)
+
+Jika Anda baru saja meng-clone repositori ini dari GitHub:
+
+1. **Pastikan Layanan PostgreSQL Aktif** di komputer lokal Anda (port standar: `5432`).
+2. **Buat Basis Data Baru** bernama `project_warung`:
    ```bash
    createdb -U postgres project_warung
    ```
-   *(Atau buat melalui pgAdmin / shell `psql`)*
+   *(Atau buat melalui GUI pgAdmin / DBeaver / shell `psql`)*
 
-3. Terapkan berkas skema dan data benih secara berurutan:
+3. **Jalankan Skrip SQL Secara Berurutan**:
+
    ```bash
-   # 1. Eksekusi skema tabel, indeks, dan trigger
+   # 1. Bentuk struktur skema relasional (8 tabel, foreign key, trigger, dan indeks)
    psql -U postgres -d project_warung -f database/postgresql_schema.sql
 
-   # 2. Eksekusi data dasar (Base Seed)
+   # 2. Masukkan data dasar (Profil usaha Kedai Berkah UMKM & 3 akun demo RBAC)
    psql -U postgres -d project_warung -f database/postgresql_seed.sql
 
-   # 3. (Sangat Direkomendasikan) Eksekusi data demo historis Ahmad Khairul
+   # 3. (Sangat Direkomendasikan) Masukkan dataset historis operasional toko bersama
    psql -U postgres -d project_warung -f database/seed_ahmad_demo.sql
    ```
+
+   > [!NOTE]
+   > **Mengenai Berkas `database/seed_ahmad_demo.sql`**:
+   > Berkas ini menyediakan riwayat operasional komprehensif toko bersama *Kedai Berkah UMKM* (35 produk master, 58 transaksi penjualan Juli–September 2026, 250+ rincian item, 24 catatan pengeluaran, dan 4 target bulanan). Dinamai secara historis menurut kasir **Ahmad Khairul Fatih** (`id_user = 1`) karena seluruh nota kasir tersebut tercatat atas nama beliau sebagai staf pencatat. Menjalankan skrip ini membuat grafik tren Dashboard, analisis produk, dan simulator CobaDulu langsung terisi data nyata yang hidup.
+
+4. **Verifikasi Setup Berhasil**:
+   Jalankan kueri berikut untuk memastikan ketiga akun demo dan profil usaha telah terpasang dengan benar:
+   ```bash
+   psql -U postgres -d project_warung -c "SELECT id_user, nama, email, role, id_usaha FROM users ORDER BY id_user;"
+   ```
+   *Hasil yang diharapkan:*
+   ```text
+    id_user |         nama          |          email          |  role   | id_usaha 
+   ---------+-----------------------+-------------------------+---------+----------
+          1 | Ahmad Khairul Fatih   | ah.khairul@gmail.com    | kasir   |        1
+          2 | Daffa Berlliano       | daf.berlliano@gmail.com | manager |        1
+          3 | Darin Hilmi Azzahra   | dar.hilmi@gmail.com     | owner   |        1
+   ```
+
+---
+
+#### Panduan B: Pembaruan Database Lama (Upgrade / Migration Setup)
+
+Jika Anda sudah memiliki database `project_warung` lokal dari versi sebelumnya dan ingin memperbaruinya ke arsitektur RBAC multi-user tanpa mereset atau menghapus data historis:
+
+```bash
+psql -U postgres -d project_warung -f database/migration_rbac_multiusers.sql
+```
+
+> [!TIP]
+> Berkas `migration_rbac_multiusers.sql` bersifat **idempoten** dan **zero data loss**. Skrip ini menambahkan tabel `businesses`, kolom `id_usaha` & `role`, memetakan data lama ke `id_usaha = 1`, serta menyelaraskan ketiga akun demo (Owner, Manager, Kasir) dengan aman. Untuk *fresh setup*, Anda tidak perlu menjalankannya lagi karena struktur skema dan data seed dasarnya sudah diinisialisasi oleh `postgresql_schema.sql` dan `postgresql_seed.sql`.
 
 ---
 
